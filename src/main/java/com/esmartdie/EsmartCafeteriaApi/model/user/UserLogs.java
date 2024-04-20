@@ -1,14 +1,13 @@
 package com.esmartdie.EsmartCafeteriaApi.model.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
+import static jakarta.persistence.FetchType.EAGER;
 
 @Entity
 @Data
@@ -20,6 +19,7 @@ public class UserLogs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = EAGER)
     private User user;
 
     private LocalDate sessionStart;

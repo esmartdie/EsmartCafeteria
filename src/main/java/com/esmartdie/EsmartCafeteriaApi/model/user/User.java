@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.NumericBooleanConverter;
 
 @Entity
 @Data
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -19,7 +21,9 @@ public class User {
     private String lastName;
     private String email;
     private String password;
-    private boolean active;
+    @Convert(converter = NumericBooleanConverter.class)
+    private Boolean active;
+    @OneToOne
     private Role role;
 
 
