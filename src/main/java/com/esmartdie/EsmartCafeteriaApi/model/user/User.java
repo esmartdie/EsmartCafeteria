@@ -8,7 +8,7 @@ import org.hibernate.type.NumericBooleanConverter;
 
 @Entity
 @Data
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {

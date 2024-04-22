@@ -28,7 +28,6 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
 
-
     @Autowired
     private AuthenticationManagerBuilder authManagerBuilder;
 

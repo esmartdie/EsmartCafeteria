@@ -51,19 +51,19 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         User user = (User) authentication.getPrincipal();
 
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-        // Adding user details and roles to the token
+
         String access_token = JWT.create()
                 .withSubject(user.getName())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("role", user.getRole().getName())
                 .sign(algorithm);
-        // Creating a map with the generated token
+
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token", access_token);
-        // Setting the response type to application/json
+
         response.setContentType(APPLICATION_JSON_VALUE);
-        // Writing the token as response
+
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
 }

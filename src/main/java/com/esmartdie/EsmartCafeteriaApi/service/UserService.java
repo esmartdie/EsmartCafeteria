@@ -15,10 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +52,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public User saveUser(User user) {
         log.info("Saving new user {} to the database", user.getName());
-        // Encode the user's password for security before saving
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -85,8 +82,21 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public Optional<User> getUserByEmail(String email) {
+        log.info("Fetching user {}", email);
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
     public List<User> getUsers() {
         log.info("Fetching all users");
         return userRepository.findAll();
     }
+
+    @Override
+    public Optional<User> getUserById(Long id) {
+        log.info("Fetching user {}", id);
+        return userRepository.findById(id);
+    }
+
 }

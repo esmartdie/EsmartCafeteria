@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Client extends User{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Digits(integer = 1, fraction = 2)
     private double qualification;
+
+    public Client(Long id, String name, String lastName, String email, String password, Boolean active, Role role) {
+        super(id, name, lastName, email, password, active, role);
+        setQualification(5.0);
+        setRole(new Role(null,"ROLE_USER"));
+    }
+
+
+
 }

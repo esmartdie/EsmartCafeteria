@@ -1,9 +1,11 @@
 package com.esmartdie.EsmartCafeteriaApi.service;
 
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IUserService {
 
@@ -16,4 +18,8 @@ public interface IUserService {
     User getUser(String username);
 
     List<User> getUsers();
+
+    Optional<User> getUserByEmail(String email);
+
+    Optional<User> getUserById(Long id);
 }
