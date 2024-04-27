@@ -30,27 +30,33 @@ public class ClientController {
     }
 
     @PatchMapping("/{clientId}/activate")
-    public ResponseEntity<String> activateClient(@PathVariable Long clientId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void activateClient(@PathVariable Long clientId) {
         clientService.activateClient(clientId);
-        return ResponseEntity.ok("Client activated successfully");
     }
 
     @PatchMapping("/{clientId}/deactivate")
-    public ResponseEntity<String> deactivateClient(@PathVariable Long clientId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deactivateClient(@PathVariable Long clientId) {
         clientService.deactivateClient(clientId);
-        return ResponseEntity.ok("Client deactivated successfully");
     }
 
     @PatchMapping("/activate")
-    public ResponseEntity<String> activateClients(@RequestBody List<Long> clientIds) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void activateClients(@RequestBody List<Long> clientIds) {
         clientService.activateClients(clientIds);
-        return ResponseEntity.ok("Clients activated successfully");
     }
 
     @PatchMapping("/deactivate")
-    public ResponseEntity<String> deactivateClients(@RequestBody List<Long> clientIds) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void  deactivateClients(@RequestBody List<Long> clientIds) {
         clientService.deactivateClients(clientIds);
-        return ResponseEntity.ok("Clients deactivated successfully");
+    }
+
+    @PatchMapping("/updateRating")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateClientRating(@RequestBody Client client) {
+        clientService.updateClientRating(client.getId(), client.getRating());
     }
 
 

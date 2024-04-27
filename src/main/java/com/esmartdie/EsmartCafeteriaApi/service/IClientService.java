@@ -19,4 +19,6 @@ public interface IClientService {
     void activateClients(List<Long> clientIds);
 
     void deactivateClients(List<Long> clientIds);
+
+    void updateClientRating(Long clientId, double rating);
 }

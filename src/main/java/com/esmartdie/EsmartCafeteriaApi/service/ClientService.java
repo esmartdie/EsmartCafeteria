@@ -76,5 +76,18 @@ public class ClientService implements IClientService{
         clientRepository.saveAll(clients);
     }
 
+    @Override
+    public void updateClientRating(Long clientId, double rating){
+        Optional<Client> optionalClient = clientRepository.findById(clientId);
+        if (optionalClient.isPresent()) {
+            Client client = optionalClient.get();
+            client.setRating(rating);
+            clientRepository.save(client);
+        } else {
+            throw new ResourceNotFoundException("Client not found with id: " + clientId);
+        }
+
+    }
+
 
 }
