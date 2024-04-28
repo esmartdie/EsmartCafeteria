@@ -1,9 +1,9 @@
-package com.esmartdie.EsmartCafeteriaApi.service;
+package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
-import com.esmartdie.EsmartCafeteriaApi.repository.IRoleRepository;
-import com.esmartdie.EsmartCafeteriaApi.repository.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

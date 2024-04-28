@@ -1,8 +1,8 @@
-package com.esmartdie.EsmartCafeteriaApi.service;
+package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
-import com.esmartdie.EsmartCafeteriaApi.repository.IEmployeeRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IEmployeeRepository;
 import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

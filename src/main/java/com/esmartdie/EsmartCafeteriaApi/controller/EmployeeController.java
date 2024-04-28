@@ -1,7 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.controller;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
-import com.esmartdie.EsmartCafeteriaApi.service.IEmployeeService;
+import com.esmartdie.EsmartCafeteriaApi.service.user.IEmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
