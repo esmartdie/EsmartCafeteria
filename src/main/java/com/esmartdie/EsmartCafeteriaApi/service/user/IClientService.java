@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.service;
+package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import org.springframework.security.core.userdetails.UserDetails;

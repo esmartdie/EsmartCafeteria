@@ -3,7 +3,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
-import com.esmartdie.EsmartCafeteriaApi.service.IUserService;
+import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
 import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.utils.UpdateFailedException;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -26,6 +26,5 @@ public class UserLogs {
 
     private LocalDate sessionEnd;
 
-    private String dataChange;
 
 }

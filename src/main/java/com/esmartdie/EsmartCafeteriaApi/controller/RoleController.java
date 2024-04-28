@@ -2,7 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.RoleToUserDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
-import com.esmartdie.EsmartCafeteriaApi.service.IUserService;
+import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
