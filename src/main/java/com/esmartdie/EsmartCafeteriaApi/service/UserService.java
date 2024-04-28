@@ -2,8 +2,8 @@ package com.esmartdie.EsmartCafeteriaApi.service;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
-import com.esmartdie.EsmartCafeteriaApi.repository.RoleRepository;
-import com.esmartdie.EsmartCafeteriaApi.repository.UserRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.IRoleRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +24,10 @@ public class UserService implements IUserService, UserDetailsService {
 
 
     @Autowired
-    private UserRepository userRepository;
+    private IUserRepository IUserRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private IRoleRepository IRoleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -35,7 +35,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username);
+        User user = IUserRepository.findByUsername(username);
 
         if (user == null) {
             log.error("User not found in the database");
@@ -54,49 +54,49 @@ public class UserService implements IUserService, UserDetailsService {
         log.info("Saving new user {} to the database", user.getName());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        return IUserRepository.save(user);
     }
 
     @Override
     public Role saveRole(Role role) {
         log.info("Saving new role {} to the database", role.getName());
-        return roleRepository.save(role);
+        return IRoleRepository.save(role);
     }
 
     @Override
     public void addRoleToUser(String username, String roleName) {
         log.info("Adding role {} to user {}", roleName, username);
 
-        User user = userRepository.findByUsername(username);
-        Role role = roleRepository.findByName(roleName);
+        User user = IUserRepository.findByUsername(username);
+        Role role = IRoleRepository.findByName(roleName);
 
         user.setRole(role);
 
-        userRepository.save(user);
+        IUserRepository.save(user);
     }
 
     @Override
     public User getUser(String username) {
         log.info("Fetching user {}", username);
-        return userRepository.findByUsername(username);
+        return IUserRepository.findByUsername(username);
     }
 
     @Override
     public Optional<User> getUserByEmail(String email) {
         log.info("Fetching user {}", email);
-        return userRepository.findByEmail(email);
+        return IUserRepository.findByEmail(email);
     }
 
     @Override
     public List<User> getUsers() {
         log.info("Fetching all users");
-        return userRepository.findAll();
+        return IUserRepository.findAll();
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
         log.info("Fetching user {}", id);
-        return userRepository.findById(id);
+        return IUserRepository.findById(id);
     }
 
 }

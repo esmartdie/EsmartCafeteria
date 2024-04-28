@@ -14,23 +14,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-public class UserController {
+@RestController
+@RequestMapping("/api")
+public class UserController implements IUserController{
 
     @Autowired
     private IUserService userService;
 
+    @Override
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
         return userService.getUsers();
     }
 
+    @Override
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveUser(@RequestBody User user) {
         userService.saveUser(user);
     }
 
+    @Override
     @PostMapping("/users/client/create")
     public ResponseEntity<?> createUser(@RequestBody Client client) {
 
@@ -47,6 +52,7 @@ public class UserController {
                 .body("The user was created successfully");
     }
 
+    @Override
     @PostMapping("/users/employee/create")
     public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
 
@@ -63,6 +69,22 @@ public class UserController {
                 .body("The employee was created successfully");
     }
 
+    @Override
+    @GetMapping("/users/client/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public User getClientInfo(@PathVariable Long id) {
+
+        Optional<User> existingClientOptional = userService.getUserById(id);
+
+        if (!existingClientOptional.isPresent()) {
+            throw new ResourceNotFoundException("Client not found with id: " + id);
+        }
+
+        User existingClient = existingClientOptional.get();
+
+        return existingClient;
+    }
+    @Override
     @PatchMapping("/users/client/{id}/update")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateClientSoft(@PathVariable Long id, @RequestBody Client updatedClient) {
