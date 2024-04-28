@@ -3,19 +3,24 @@ package com.esmartdie.EsmartCafeteriaApi.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
+import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
+import com.esmartdie.EsmartCafeteriaApi.service.user.IUserLogsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +28,13 @@ import java.util.Map;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
+@Component
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private IUserLogsService userLogsService;
 
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -49,6 +58,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                                             FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
         User user = (User) authentication.getPrincipal();
+
+        UserLogs userLog = new UserLogs();
+        userLog.setUser(user);
+        userLog.setSessionStart(LocalDate.now());
+        userLogsService.createUserLog(userLog);
 
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
 
