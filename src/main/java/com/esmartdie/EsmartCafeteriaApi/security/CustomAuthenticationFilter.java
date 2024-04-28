@@ -59,10 +59,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         User user = (User) authentication.getPrincipal();
 
-        UserLogs userLog = new UserLogs();
-        userLog.setUser(user);
-        userLog.setSessionStart(LocalDate.now());
-        userLogsService.createUserLog(userLog);
+        userLogsService.createUserLoginLog(user);
 
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
 
