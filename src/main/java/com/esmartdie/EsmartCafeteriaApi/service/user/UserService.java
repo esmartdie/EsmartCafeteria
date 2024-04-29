@@ -22,12 +22,11 @@ import java.util.*;
 @Slf4j
 public class UserService implements IUserService, UserDetailsService {
 
+    @Autowired
+    private IUserRepository userRepository;
 
     @Autowired
-    private IUserRepository IUserRepository;
-
-    @Autowired
-    private IRoleRepository IRoleRepository;
+    private IRoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -35,7 +34,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = IUserRepository.findByUsername(username);
+        User user = userRepository.findByName(username);
 
         if (user == null) {
             log.error("User not found in the database");
@@ -54,49 +53,49 @@ public class UserService implements IUserService, UserDetailsService {
         log.info("Saving new user {} to the database", user.getName());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return IUserRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public Role saveRole(Role role) {
         log.info("Saving new role {} to the database", role.getName());
-        return IRoleRepository.save(role);
+        return roleRepository.save(role);
     }
 
     @Override
     public void addRoleToUser(String username, String roleName) {
         log.info("Adding role {} to user {}", roleName, username);
 
-        User user = IUserRepository.findByUsername(username);
-        Role role = IRoleRepository.findByName(roleName);
+        User user = userRepository.findByName(username);
+        Role role = roleRepository.findByName(roleName);
 
         user.setRole(role);
 
-        IUserRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
     public User getUser(String username) {
         log.info("Fetching user {}", username);
-        return IUserRepository.findByUsername(username);
+        return userRepository.findByName(username);
     }
 
     @Override
     public Optional<User> getUserByEmail(String email) {
         log.info("Fetching user {}", email);
-        return IUserRepository.findByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     @Override
     public List<User> getUsers() {
         log.info("Fetching all users");
-        return IUserRepository.findAll();
+        return userRepository.findAll();
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
         log.info("Fetching user {}", id);
-        return IUserRepository.findById(id);
+        return userRepository.findById(id);
     }
 
 }

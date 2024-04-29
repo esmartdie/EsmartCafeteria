@@ -23,7 +23,8 @@ public class User {
     private String password;
     @Convert(converter = NumericBooleanConverter.class)
     private Boolean active;
-    @OneToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "role_id")
     private Role role;
 
 
