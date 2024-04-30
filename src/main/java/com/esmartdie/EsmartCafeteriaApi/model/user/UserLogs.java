@@ -20,6 +20,7 @@ public class UserLogs {
     private Long id;
 
     @ManyToOne(fetch = EAGER)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDate sessionStart;

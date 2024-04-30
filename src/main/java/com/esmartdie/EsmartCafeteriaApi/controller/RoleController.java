@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-public class RoleController {
+public class RoleController implements IRoleController{
+
+
     @Autowired
     private IUserService userService;
 
