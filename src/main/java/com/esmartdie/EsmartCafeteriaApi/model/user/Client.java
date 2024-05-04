@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Client extends User{
 
-    @Digits(integer = 1, fraction = 2)
+    //@Digits(integer = 1, fraction = 2)
     private double rating;
 
     public Client(Long id, String name, String lastName, String email, String password, Boolean active, Role role) {

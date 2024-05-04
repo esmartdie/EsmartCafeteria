@@ -22,9 +22,9 @@ import java.util.*;
 @Slf4j
 public class UserService implements IUserService, UserDetailsService {
 
-
     @Autowired
     private IUserRepository userRepository;
+
 
     @Autowired
     private IRoleRepository roleRepository;
@@ -35,7 +35,9 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username);
+
+        User user = userRepository.findByName(username);
+
 
         if (user == null) {
             log.error("User not found in the database");
@@ -67,7 +69,8 @@ public class UserService implements IUserService, UserDetailsService {
     public void addRoleToUser(String username, String roleName) {
         log.info("Adding role {} to user {}", roleName, username);
 
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByName(username);
+
         Role role = roleRepository.findByName(roleName);
 
         user.setRole(role);
@@ -78,7 +81,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public User getUser(String username) {
         log.info("Fetching user {}", username);
-        return userRepository.findByUsername(username);
+        return userRepository.findByName(username);
     }
 
     @Override
