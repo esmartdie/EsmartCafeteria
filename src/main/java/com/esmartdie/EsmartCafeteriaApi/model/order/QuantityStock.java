@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static jakarta.persistence.FetchType.EAGER;
 
 
 @Entity
@@ -19,7 +18,7 @@ public class QuantityStock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(targetEntity = Employee.class)
-    @Column(name="internal_user")
+    @JoinColumn(name="internal_user")
     private Employee internalUser;
     @ManyToOne
     @JoinColumn(name = "product_id")
