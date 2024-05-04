@@ -12,6 +12,10 @@ public interface IProductController {
 
     Collection<Product> getProducts();
 
+    @GetMapping("/products/inactive")
+    @ResponseStatus(HttpStatus.OK)
+    Collection<Product> getInactiveProducts();
+
     ResponseEntity<?> saveProduct(@RequestBody Product product);
 
     void updateProducts(@PathVariable Long id, @RequestBody Product updatedProduct);

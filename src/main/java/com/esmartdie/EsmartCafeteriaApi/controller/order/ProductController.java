@@ -20,11 +20,19 @@ public class ProductController implements IProductController{
     private IProductService productService;
 
     @Override
-    @GetMapping("/products")
+    @GetMapping("/products/active")
     @ResponseStatus(HttpStatus.OK)
     public Collection<Product> getProducts() {
         return productService.getActiveProducts();
     }
+
+    @Override
+    @GetMapping("/products/inactive")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Product> getInactiveProducts() {
+        return productService.getInActiveProducts();
+    }
+
 
     @Override
     @PostMapping("/products/create")
