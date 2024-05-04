@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.controller;
+package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
