@@ -25,6 +25,7 @@ public class UserService implements IUserService, UserDetailsService {
     @Autowired
     private IUserRepository userRepository;
 
+
     @Autowired
     private IRoleRepository roleRepository;
 
@@ -34,7 +35,9 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+
         User user = userRepository.findByName(username);
+
 
         if (user == null) {
             log.error("User not found in the database");
@@ -67,6 +70,7 @@ public class UserService implements IUserService, UserDetailsService {
         log.info("Adding role {} to user {}", roleName, username);
 
         User user = userRepository.findByName(username);
+
         Role role = roleRepository.findByName(roleName);
 
         user.setRole(role);
