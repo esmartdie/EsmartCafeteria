@@ -4,6 +4,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
 import com.esmartdie.EsmartCafeteriaApi.utils.ReservationException;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,10 @@ public class ReservationService {
     public Reservation createReservation(Reservation reservation) {
 
         if (!isReservationPossible(reservation)) {
+            throw new ReservationException("Reservation is not possible.");
+        }
+
+        if(reservation.getDinners()>6){
             throw new ReservationException("Reservation is not possible.");
         }
 
@@ -77,4 +83,25 @@ public class ReservationService {
         int totalDinners = reservations.stream().mapToInt(Reservation::getDinners).sum();
         return  reservationRecord.getMAX_CLIENTS() - totalDinners;
     }
+
+    public Optional<List<Reservation>> getReservationsByClient(Client client) {
+        return reservationRepository.findByClient(client);
+    }
+
+    public Optional<List<Reservation>> getAcceptedReservationsByClient(Client client) {
+        return reservationRepository.findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+    }
+
+    public Optional<Reservation> getReservationById(Long id) {
+        return reservationRepository.findById(id);
+    }
+
+    public Optional<List<Reservation>> getAllReservationsForDay(SimpleDateFormat date) {
+        return reservationRepository.findByReservationDate(date);
+    }
+
+    public Optional<List<Reservation>>getAllReservationsForDayAndShift(SimpleDateFormat date, Shift shift) {
+        return reservationRepository.findByReservationDateAndShift(date, shift);
+    }
+
 }

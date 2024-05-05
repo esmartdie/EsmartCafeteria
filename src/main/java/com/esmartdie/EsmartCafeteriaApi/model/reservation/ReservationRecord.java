@@ -20,7 +20,7 @@ public class ReservationRecord {
     private Long id;
 
     @Column(name="max_tables")
-    private final Integer MAX_CLIENTS=50;
+    private final Integer MAX_CLIENTS=40;
 
     @Column(name="empty_spaces")
     private Integer emptySpaces;

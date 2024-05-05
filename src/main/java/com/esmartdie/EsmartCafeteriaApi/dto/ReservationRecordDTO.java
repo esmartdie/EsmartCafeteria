@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class ReservationRecordDTO {
 
-    private Integer id;
+    private Long id;
 
     private Integer availableReservations;
 
