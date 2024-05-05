@@ -27,6 +27,9 @@ public class Reservation {
 
     private Integer dinners;
 
+    @ManyToOne
+    private ReservationRecord record;
+
     @Column(name="reservation_date")
     private LocalDate reservationDate;
 

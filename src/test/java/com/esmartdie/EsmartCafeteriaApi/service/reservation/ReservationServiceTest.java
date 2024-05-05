@@ -7,15 +7,20 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import com.esmartdie.EsmartCafeteriaApi.utils.ReservationException;
+import com.esmartdie.EsmartCafeteriaApi.utils.ReservationNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,17 +35,44 @@ import static org.mockito.Mockito.*;
 class ReservationServiceTest {
 
     @Mock
-    private IReservationRepository reservationRepository;
+    private IReservationRepository reservationRepositoryMock;
 
     @Mock
-    private IReservationRecordRepository reservationRecordRepository;
+    private IReservationRecordRepository reservationRecordRepositoryMock;
 
     @InjectMocks
-    private ReservationService reservationService;
+    private ReservationService reservationServiceMock;
+
+
+    @Mock
+    private ReservationNotFoundException reservationNotFoundException;
+
+    @Autowired
+    private IReservationService reservationService;
+
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private IReservationRecordRepository reservationRecordRepository;
+
+    @Autowired
+    private IReservationRepository reservationRepository;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    public void tearDown(){
+/*
+        reservationRepository.deleteAll();
+        userRepository.deleteAll();
+        reservationRecordRepository.deleteAll();
+
+
+ */
     }
 
     @Test
@@ -50,14 +82,14 @@ class ReservationServiceTest {
         reservation.setDinners(4);
         reservation.setShift(Shift.DAY1);
         reservation.setReservationDate(LocalDate.now());
-        when(reservationRecordRepository.findByReservationDateAndShift(any(), any())).thenReturn(Optional.empty());
-        when(reservationRepository.save(any())).thenAnswer(invocation -> {
+        when(reservationRecordRepositoryMock.findByReservationDateAndShift(any(), any())).thenReturn(Optional.empty());
+        when(reservationRepositoryMock.save(any())).thenAnswer(invocation -> {
             Reservation savedReservation = invocation.getArgument(0);
             savedReservation.setId(1L);
             return savedReservation;
         });
 
-        Reservation createdReservation = reservationService.createReservation(reservation);
+        Reservation createdReservation = reservationServiceMock.createReservation(reservation);
 
         assertNotNull(createdReservation);
         assertEquals(ReservationStatus.ACCEPTED, createdReservation.getReservationStatus());
@@ -68,14 +100,14 @@ class ReservationServiceTest {
         Reservation reservation = new Reservation();
         reservation.setDinners(7);
 
-        assertThrows(ReservationException.class, () -> reservationService.createReservation(reservation));
+        assertThrows(ReservationException.class, () -> reservationServiceMock.createReservation(reservation));
     }
 
     @Test
     void testCreateReservation_ReservationNotPossible_LackOfAvailableSpaces() {
         ReservationRecord reservationRecord = new ReservationRecord();
         reservationRecord.setEmptySpaces(0);
-        Mockito.when(reservationRecordRepository.findByReservationDateAndShift(Mockito.any(), Mockito.any()))
+        Mockito.when(reservationRecordRepositoryMock.findByReservationDateAndShift(Mockito.any(), Mockito.any()))
                 .thenReturn(Optional.of(reservationRecord));
 
         Reservation reservation = new Reservation();
@@ -86,7 +118,7 @@ class ReservationServiceTest {
 
 
         ReservationException exception = assertThrows(ReservationException.class,
-                () -> reservationService.createReservation(reservation));
+                () -> reservationServiceMock.createReservation(reservation));
 
         assertEquals("Reservation is not possible due to lack of available spaces.", exception.getMessage());
     }
@@ -96,56 +128,56 @@ class ReservationServiceTest {
         Reservation reservation = new Reservation();
         reservation.setDinners(0);
 
-        assertThrows(ReservationException.class, () -> reservationService.createReservation(reservation));
+        assertThrows(ReservationException.class, () -> reservationServiceMock.createReservation(reservation));
     }
 
     @Test
     void testGetReservationsByClient() {
         Client client = new Client();
         List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepository.findByClient(client)).thenReturn(Optional.of(expectedReservations));
+        when(reservationRepositoryMock.findByClient(client)).thenReturn(Optional.of(expectedReservations));
 
-        Optional<List<Reservation>> result = reservationService.getReservationsByClient(client);
+        Optional<List<Reservation>> result = reservationServiceMock.getReservationsByClient(client);
 
         assertEquals(expectedReservations, result.orElse(null));
-        verify(reservationRepository, times(1)).findByClient(client);
+        verify(reservationRepositoryMock, times(1)).findByClient(client);
     }
 
     @Test
     void testGetAcceptedReservationsByClient() {
         Client client = new Client();
         List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepository.findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED))
+        when(reservationRepositoryMock.findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED))
                 .thenReturn(Optional.of(expectedReservations));
 
-        Optional<List<Reservation>> result = reservationService.getAcceptedReservationsByClient(client);
+        Optional<List<Reservation>> result = reservationServiceMock.getAcceptedReservationsByClient(client);
 
         assertEquals(expectedReservations, result.orElse(null));
-        verify(reservationRepository, times(1)).findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+        verify(reservationRepositoryMock, times(1)).findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
     }
 
     @Test
     void testGetReservationById() {
         Long id = 1L;
         Reservation expectedReservation = new Reservation();
-        when(reservationRepository.findById(id)).thenReturn(Optional.of(expectedReservation));
+        when(reservationRepositoryMock.findById(id)).thenReturn(Optional.of(expectedReservation));
 
-        Optional<Reservation> result = reservationService.getReservationById(id);
+        Optional<Reservation> result = reservationServiceMock.getReservationById(id);
 
         assertEquals(expectedReservation, result.orElse(null));
-        verify(reservationRepository, times(1)).findById(id);
+        verify(reservationRepositoryMock, times(1)).findById(id);
     }
 
     @Test
     void testGetAllReservationsForDay() {
         LocalDate date = LocalDate.now();
         List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepository.findByReservationDate(date)).thenReturn(Optional.of(expectedReservations));
+        when(reservationRepositoryMock.findByReservationDate(date)).thenReturn(Optional.of(expectedReservations));
 
-        Optional<List<Reservation>> result = reservationService.getAllReservationsForDay(date);
+        Optional<List<Reservation>> result = reservationServiceMock.getAllReservationsForDay(date);
 
         assertEquals(expectedReservations, result.orElse(null));
-        verify(reservationRepository, times(1)).findByReservationDate(date);
+        verify(reservationRepositoryMock, times(1)).findByReservationDate(date);
     }
 
     @Test
@@ -153,12 +185,54 @@ class ReservationServiceTest {
         LocalDate date = LocalDate.now();
         Shift shift = Shift.DAY4;
         List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepository.findByReservationDateAndShift(date, shift)).thenReturn(Optional.of(expectedReservations));
+        when(reservationRepositoryMock.findByReservationDateAndShift(date, shift)).thenReturn(Optional.of(expectedReservations));
 
-        Optional<List<Reservation>> result = reservationService.getAllReservationsForDayAndShift(date, shift);
+        Optional<List<Reservation>> result = reservationServiceMock.getAllReservationsForDayAndShift(date, shift);
 
         assertEquals(expectedReservations, result.orElse(null));
-        verify(reservationRepository, times(1)).findByReservationDateAndShift(date, shift);
+        verify(reservationRepositoryMock, times(1)).findByReservationDateAndShift(date, shift);
     }
+
+
+    @Test
+    public void integrationTestCancelledAReserve() {
+        Client client = new Client();
+        userRepository.save(client);
+
+        Reservation reservation1 = createReservation(client, Shift.DAY1);
+        Reservation savedReservation1 = reservationService.createReservation(reservation1);
+
+        Reservation reservation2 = createReservation(client, Shift.DAY1);
+        Reservation savedReservation2 = reservationService.createReservation(reservation2);
+
+        Reservation reservation3 = createReservation(client, Shift.DAY1);
+        Reservation savedReservation3 = reservationService.createReservation(reservation3);
+
+/*
+        Long reservationIdToCancel = savedReservation3.getId();
+        reservationService.cancelReservation(reservationIdToCancel);
+
+
+ */
+
+        Optional<ReservationRecord> optionalReservationRecord =
+                reservationRecordRepository.findByReservationDateAndShift(LocalDate.now(), Shift.DAY1);
+
+        assertEquals(38, optionalReservationRecord.get().getEmptySpaces());
+
+    }
+
+    private Reservation createReservation(Client client, Shift shift) {
+        Reservation reservation = new Reservation();
+        reservation.setClient(client);
+        reservation.setDinners(2);
+        reservation.setReservationDate(LocalDate.of(2024, 05, 14));
+        reservation.setShift(shift);
+        reservation.setReservationStatus(ReservationStatus.PENDING);
+        return reservation;
+    }
+
+
+
 
 }

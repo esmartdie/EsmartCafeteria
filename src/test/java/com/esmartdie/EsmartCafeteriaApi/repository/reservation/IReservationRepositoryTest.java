@@ -127,6 +127,31 @@ class IReservationRepositoryTest {
         assertTrue(retrievedReservations.contains(reservation1));
     }
 
+    @Test
+    public void testFindByReservationDateAndShiftAndReservationStatus() {
+        Client client = new Client();
+        userRepository.save(client);
+
+        Reservation reservation1 =  createReservation(client, Shift.DAY1);
+        reservation1.setReservationStatus(ReservationStatus.ACCEPTED);
+        reservationRepository.save(reservation1);
+
+        Reservation reservation2 = createReservation(client, Shift.DAY2);
+        reservation2.setReservationDate(LocalDate.now());
+        reservation2.setReservationStatus(ReservationStatus.CONFIRMED);
+        reservationRepository.save(reservation2);
+
+        LocalDate date = LocalDate.now();
+        Shift shift = Shift.DAY2;
+        ReservationStatus status = ReservationStatus.CONFIRMED;
+        Optional<List<Reservation>> reservations = reservationRepository.findByReservationDateAndShiftAndReservationStatus(date, shift, status);
+
+
+        assertEquals(1, reservations.orElse(List.of()).size());
+        assertNotEquals(reservation1.getReservationStatus(), reservations.orElseThrow().get(0).getReservationStatus());
+        assertNotEquals(reservation1.getShift(), reservations.orElseThrow().get(0).getShift());
+    }
+
     private Reservation createReservation(Client client, Shift shift) {
         Reservation reservation = new Reservation();
         reservation.setClient(client);

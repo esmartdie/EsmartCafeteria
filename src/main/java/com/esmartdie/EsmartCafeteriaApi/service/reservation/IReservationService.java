@@ -5,6 +5,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,12 @@ public interface IReservationService {
     Optional<List<Reservation>> getAllReservationsForDay(LocalDate date);
 
     Optional<List<Reservation>>getAllReservationsForDayAndShift(LocalDate date, Shift shift);
+
+    Reservation cancelReservation(Long reservationId);
+
+    Reservation confirmReservation(Long reservationId);
+
+    Reservation lossReservation(Long reservationId);
+
+    void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
 }

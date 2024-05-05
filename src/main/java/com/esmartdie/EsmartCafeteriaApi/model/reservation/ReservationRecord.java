@@ -14,7 +14,6 @@ import java.util.Objects;
 
 @Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class ReservationRecord {
 
@@ -36,6 +35,10 @@ public class ReservationRecord {
 
     @Enumerated(EnumType.STRING)
     private Shift shift;
+
+    public ReservationRecord() {
+        setEmptySpaces(getMAX_CLIENTS());
+    }
 
     @Override
     public boolean equals(Object obj) {

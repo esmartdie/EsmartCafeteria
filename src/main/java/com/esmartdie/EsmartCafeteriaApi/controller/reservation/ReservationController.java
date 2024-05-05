@@ -119,7 +119,7 @@ public class ReservationController {
         }
     }
 
-    @PatchMapping("/employee/{reservationId}/confirm")
+    @PatchMapping("/employee/{reservationId}/loss")
     public ResponseEntity<?> lossReservation(@PathVariable Long reservationId) {
         try {
             Reservation confirmedReservation = reservationService.lossReservation(reservationId);
@@ -129,7 +129,7 @@ public class ReservationController {
         }
     }
 
-    @PutMapping("/employee/loss")
+    @PutMapping("/employee/updateLoss")
     public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {

@@ -55,8 +55,8 @@ public class ReservationService implements IReservationService{
         }
 
         reservationRecord.getReservationList().add(savedReservation);
-        reservationRecord.setEmptySpaces(recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift()));
         reservationRecordRepository.save(reservationRecord);
+        recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
         return savedReservation;
     }
@@ -86,21 +86,25 @@ public class ReservationService implements IReservationService{
         }
     }
 
-    private int recalculateTotalDinners(LocalDate reservationDate, Shift shift) {
+    private void recalculateTotalDinners(LocalDate reservationDate, Shift shift) {
         Optional<ReservationRecord> optionalReservationRecord = reservationRecordRepository.findByReservationDateAndShift(reservationDate, shift);
         ReservationRecord reservationRecord = optionalReservationRecord.orElseGet(() -> findOrCreateReservationRecord(reservationDate, shift));
         List<Reservation> reservations = reservationRecord.getReservationList();
 
-        if (reservations == null) {
-            return reservationRecord.getMAX_CLIENTS();
+        if (reservations == null|| reservations.isEmpty()) {
+            reservationRecord.setEmptySpaces(reservationRecord.getMAX_CLIENTS());
+        }else {
+
+            int totalDinners = reservations.stream()
+                    .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
+                    .mapToInt(Reservation::getDinners)
+                    .sum();
+
+            int emptySpaces = reservationRecord.getMAX_CLIENTS() - totalDinners;
+            reservationRecord.setEmptySpaces(emptySpaces);
         }
 
-        int totalDinners = reservations.stream()
-                .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
-                .mapToInt(Reservation::getDinners)
-                .sum();
-
-        return  reservationRecord.getMAX_CLIENTS() - totalDinners;
+        reservationRecordRepository.save(reservationRecord);
     }
 
     @Override
@@ -128,6 +132,7 @@ public class ReservationService implements IReservationService{
         return reservationRepository.findByReservationDateAndShift(date, shift);
     }
 
+    @Override
     public Reservation cancelReservation(Long reservationId) {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
@@ -146,6 +151,7 @@ public class ReservationService implements IReservationService{
         }
     }
 
+    @Override
     public Reservation confirmReservation(Long reservationId) {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
@@ -157,6 +163,7 @@ public class ReservationService implements IReservationService{
         }
     }
 
+    @Override
     public Reservation lossReservation(Long reservationId) {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
@@ -168,6 +175,7 @@ public class ReservationService implements IReservationService{
         }
     }
 
+    @Override
     public void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
         LocalDate today = LocalDate.now();
 
