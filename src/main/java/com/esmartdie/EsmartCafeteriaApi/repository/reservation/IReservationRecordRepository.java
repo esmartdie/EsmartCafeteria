@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,5 +16,5 @@ public interface IReservationRecordRepository extends JpaRepository<ReservationR
 
     Optional<List<ReservationRecord>>findByReservationDateBetween(LocalDate startDate, LocalDate endDate);
 
-    Optional<ReservationRecord> findByReservationDateAndShift(SimpleDateFormat reservationDate, Shift shift);
+    Optional<ReservationRecord> findByReservationDateAndShift(LocalDate reservationDate, Shift shift);
 }

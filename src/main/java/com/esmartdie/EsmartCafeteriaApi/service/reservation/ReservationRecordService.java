@@ -17,11 +17,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ReservationRecordService {
+public class ReservationRecordService implements IReservationRecordService{
 
     @Autowired
     private IReservationRecordRepository reservationRecordRepository;
 
+    @Override
     public List<ReservationRecordDTO> getReservationRecordsForMonth(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);

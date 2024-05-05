@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -15,7 +17,7 @@ public class ReservationRecordDTO {
 
     private Integer availableReservations;
 
-    private SimpleDateFormat reservationDate;
+    private LocalDate reservationDate;
 
     private Shift shift;
 }

@@ -3,6 +3,7 @@ package com.esmartdie.EsmartCafeteriaApi.model.reservation;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ class ReservationRecordTest {
         Long id=1L;
         Integer maxClients = 40;
         Integer emptySpaces = 30;
-        SimpleDateFormat reservationDate = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDate reservationDate = LocalDate.of(2024, 5, 11);;
         Shift shift = Shift.DAY3;
 
         List<Reservation> reservationList = new ArrayList<>();

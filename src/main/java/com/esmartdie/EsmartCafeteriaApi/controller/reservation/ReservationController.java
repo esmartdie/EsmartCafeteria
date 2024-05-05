@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,14 +69,14 @@ public class ReservationController {
     }
 
     @GetMapping("/employee/day")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam SimpleDateFormat date) {
+    public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDay(date);
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/employee/day-shift")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam SimpleDateFormat date, @RequestParam Shift shift) {
+    public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());

@@ -4,6 +4,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -26,7 +27,7 @@ public class ReservationTest {
     public void testAllArgsConstructor() {
         Client client = mock(Client.class);
         Integer dinners = 2;
-        SimpleDateFormat reservationDate = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDate reservationDate = LocalDate.of(2024, 5, 11);;
         Shift shift = Shift.DAY1;
 
         Reservation reservation = new Reservation(client, dinners, reservationDate, shift);

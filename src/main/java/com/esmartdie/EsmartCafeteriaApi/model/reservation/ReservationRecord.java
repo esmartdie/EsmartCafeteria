@@ -7,7 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -25,13 +28,26 @@ public class ReservationRecord {
     @Column(name="empty_spaces")
     private Integer emptySpaces;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     List<Reservation> reservationList;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="reserve_date")
-    private SimpleDateFormat reservationDate;
+    @Column(name="reservation_date")
+    private LocalDate reservationDate;
 
     @Enumerated(EnumType.STRING)
     private Shift shift;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ReservationRecord other = (ReservationRecord) obj;
+        return Objects.equals(this.getId(), other.getId()) &&
+                Objects.equals(this.getReservationDate(), other.getReservationDate()) &&
+                this.getShift() == other.getShift();
+    }
 }
