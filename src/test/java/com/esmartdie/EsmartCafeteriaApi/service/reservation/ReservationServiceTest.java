@@ -196,6 +196,7 @@ class ReservationServiceTest {
 
     @Test
     public void integrationTestCancelledAReserve() {
+
         Client client = new Client();
         userRepository.save(client);
 
@@ -208,27 +209,49 @@ class ReservationServiceTest {
         Reservation reservation3 = createReservation(client, Shift.DAY1);
         Reservation savedReservation3 = reservationService.createReservation(reservation3);
 
+
+
+
+
 /*
         Long reservationIdToCancel = savedReservation3.getId();
         reservationService.cancelReservation(reservationIdToCancel);
 
 
- */
+
 
         Optional<ReservationRecord> optionalReservationRecord =
                 reservationRecordRepository.findByReservationDateAndShift(LocalDate.now(), Shift.DAY1);
 
         assertEquals(38, optionalReservationRecord.get().getEmptySpaces());
 
+ */
+
+
+
+        //List<Reservation> reservationList = reservationService.getAllReservationsForDay(LocalDate.of(2024, 05, 11)).get();
+
+
+        //assertEquals(3, reservationList.size());
+/*
+        Reservation cancelledReservation = reservationService.cancelReservation(99L);
+
+        assertEquals(ReservationStatus.CANCELED, cancelledReservation.getReservationStatus());
+
+
+ */
+
+
     }
 
     private Reservation createReservation(Client client, Shift shift) {
         Reservation reservation = new Reservation();
         reservation.setClient(client);
-        reservation.setDinners(2);
-        reservation.setReservationDate(LocalDate.of(2024, 05, 14));
+        reservation.setDinners(6);
+        reservation.setReservationDate(LocalDate.of(2024, 5, 3));
         reservation.setShift(shift);
         reservation.setReservationStatus(ReservationStatus.PENDING);
+        reservation.setRecord(reservationRecordRepository.findByReservationDateAndShift(reservation.getReservationDate(), shift).get());
         return reservation;
     }
 

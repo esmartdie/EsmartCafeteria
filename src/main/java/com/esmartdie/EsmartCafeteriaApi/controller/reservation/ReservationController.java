@@ -110,9 +110,10 @@ public class ReservationController {
     }
 
     @PatchMapping("/employee/{reservationId}/confirm")
-    public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
+                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
-            Reservation confirmedReservation = reservationService.confirmReservation(reservationId);
+            Reservation confirmedReservation = reservationService.confirmReservation(reservationId, actionDate, currentTime);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
         } catch (ReservationNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -120,9 +121,10 @@ public class ReservationController {
     }
 
     @PatchMapping("/employee/{reservationId}/loss")
-    public ResponseEntity<?> lossReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
+                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
-            Reservation confirmedReservation = reservationService.lossReservation(reservationId);
+            Reservation confirmedReservation = reservationService.lossReservation(reservationId, actionDate, currentTime);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
         } catch (ReservationNotFoundException e) {
             return ResponseEntity.notFound().build();

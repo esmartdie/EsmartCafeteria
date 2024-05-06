@@ -35,9 +35,7 @@ public class ReservationService implements IReservationService{
     @Override
     public Reservation createReservation(Reservation reservation) {
 
-        if (!isReservationPossible(reservation)) {
-            throw new ReservationException("Reservation is not possible due to lack of available spaces.");
-        }
+        isReservationPossible(reservation);
 
         int dinners = reservation.getDinners();
 
@@ -47,7 +45,7 @@ public class ReservationService implements IReservationService{
 
         reservation.setReservationStatus(ReservationStatus.ACCEPTED);
         Reservation savedReservation = reservationRepository.save(reservation);
-
+/*
         ReservationRecord reservationRecord = findOrCreateReservationRecord(reservation.getReservationDate(), reservation.getShift());
 
         if (reservationRecord.getReservationList() == null) {
@@ -56,12 +54,24 @@ public class ReservationService implements IReservationService{
 
         reservationRecord.getReservationList().add(savedReservation);
         reservationRecordRepository.save(reservationRecord);
+
+ */
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
         return savedReservation;
     }
 
-    private boolean isReservationPossible(Reservation reservation) {
+    private void isReservationPossible(Reservation reservation){
+        if (!checkEmptySpace(reservation)) {
+            throw new ReservationException("Reservation is not possible due to lack of available spaces.");
+        } else if (checkPassReserved(reservation)) {
+            throw new ReservationException("Couldn't made a reservation on a passed day");
+        }else if(hasOtherAcceptedReservation(reservation)){
+            throw new ReservationException("Clients couldn't had different reservation for the same day and shift");
+        }
+    }
+
+    private boolean checkEmptySpace(Reservation reservation) {
         LocalDate reservationDate = reservation.getReservationDate();
         Shift shift = reservation.getShift();
         Optional<ReservationRecord> optionalReservationRecord =
@@ -73,6 +83,33 @@ public class ReservationService implements IReservationService{
         return true;
     }
 
+    private boolean checkPassReserved(Reservation reservation){
+        LocalDate reservationDate = reservation.getReservationDate();
+        LocalDate today = LocalDate.now();
+        if(reservationDate.isBefore(today)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hasOtherAcceptedReservation(Reservation reservation){
+        Client client = reservation.getClient();
+        Shift shift = reservation.getShift();
+        LocalDate reservationDate = reservation.getReservationDate();
+
+        Optional<Reservation> optionalReservation =
+                reservationRepository.findByClientAndReservationDateAndShift(client, reservationDate, shift)
+                        .stream()
+                        .filter(r -> r.getReservationStatus() == ReservationStatus.ACCEPTED && !r.equals(reservation))
+                        .findFirst();
+
+        return optionalReservation.isPresent();
+
+
+    }
+
+
+/*
     private ReservationRecord findOrCreateReservationRecord(LocalDate reservationDate, Shift shift) {
         Optional<ReservationRecord> optionalReservationRecord = reservationRecordRepository.findByReservationDateAndShift(reservationDate, shift);
         if (optionalReservationRecord.isPresent()) {
@@ -86,23 +123,22 @@ public class ReservationService implements IReservationService{
         }
     }
 
+ */
+
     private void recalculateTotalDinners(LocalDate reservationDate, Shift shift) {
-        Optional<ReservationRecord> optionalReservationRecord = reservationRecordRepository.findByReservationDateAndShift(reservationDate, shift);
-        ReservationRecord reservationRecord = optionalReservationRecord.orElseGet(() -> findOrCreateReservationRecord(reservationDate, shift));
+
+        ReservationRecord reservationRecord = reservationRecordRepository
+                .findByReservationDateAndShift(reservationDate, shift)
+                .orElseThrow(() -> new ReservationNotFoundException("No reservations found for the specified date and shift"));
         List<Reservation> reservations = reservationRecord.getReservationList();
 
-        if (reservations == null|| reservations.isEmpty()) {
-            reservationRecord.setEmptySpaces(reservationRecord.getMAX_CLIENTS());
-        }else {
+        int totalDinners = reservations.stream()
+                .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
+                .mapToInt(Reservation::getDinners)
+                .sum();
 
-            int totalDinners = reservations.stream()
-                    .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
-                    .mapToInt(Reservation::getDinners)
-                    .sum();
-
-            int emptySpaces = reservationRecord.getMAX_CLIENTS() - totalDinners;
-            reservationRecord.setEmptySpaces(emptySpaces);
-        }
+        int emptySpaces = reservationRecord.getMAX_CLIENTS() - totalDinners;
+        reservationRecord.setEmptySpaces(emptySpaces);
 
         reservationRecordRepository.save(reservationRecord);
     }
@@ -137,42 +173,94 @@ public class ReservationService implements IReservationService{
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
             Reservation reservation = optionalReservation.get();
+
+            if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
+                throw new ReservationException("This reservation couldn't be canceled");
+            }
+
             LocalDate today = LocalDate.now();
             LocalDate reservationDate = reservation.getReservationDate();
+            Shift shift = reservation.getShift();
 
             if (reservationDate.isEqual(today)) {
                 throw new ReservationException("Cannot cancel a reservation on the same day.");
+            } else if (reservationDate.isBefore(today)) {
+                throw new ReservationException("Couldn't canceled expired reservations.");
             }
 
             reservation.setReservationStatus(ReservationStatus.CANCELED);
-            return reservationRepository.save(reservation);
+            reservationRepository.save(reservation);
+            recalculateTotalDinners(reservationDate,shift);
+            return reservation;
         } else {
             throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
         }
     }
 
     @Override
-    public Reservation confirmReservation(Long reservationId) {
+    public Reservation confirmReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
+        LocalDate today = LocalDate.now();
+
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            reservation.setReservationStatus(ReservationStatus.CONFIRMED);
-            return reservationRepository.save(reservation);
+
+            if (actionDate.equals(today)) {
+                List<Shift> allowedShifts = getAllowedShifts(currentTime);
+                Shift allowedShift = allowedShifts.getLast();
+
+                if (optionalReservation.isPresent()) {
+
+                    Reservation reservation = optionalReservation.get();
+
+                    if(reservation.getReservationStatus().equals(allowedShift)){
+
+                        if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
+                            throw new ReservationException("This reservation couldn't updated to lost");
+                        }
+                        reservation.setReservationStatus(ReservationStatus.CONFIRMED);
+                        return reservationRepository.save(reservation);
+                    }
+                }
+            }else {
+                throw new IllegalArgumentException("Reservations can only be updated to 'CONFIRMED' if the action is performed on the same day.");
+            }
         } else {
             throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
         }
+        return null;
     }
 
     @Override
-    public Reservation lossReservation(Long reservationId) {
+    public Reservation lossReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
+        LocalDate today = LocalDate.now();
+
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            reservation.setReservationStatus(ReservationStatus.LOSS);
-            return reservationRepository.save(reservation);
+
+            if (actionDate.equals(today)) {
+                List<Shift> allowedShifts = getAllowedShifts(currentTime);
+                Shift allowedShift = allowedShifts.getLast();
+
+                if (optionalReservation.isPresent()) {
+
+                    Reservation reservation = optionalReservation.get();
+
+                    if(reservation.getReservationStatus().equals(allowedShift)){
+
+                        if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
+                            throw new ReservationException("This reservation couldn't updated to lost");
+                        }
+                        reservation.setReservationStatus(ReservationStatus.LOST);
+                        return reservationRepository.save(reservation);
+                    }
+                }
+            }else {
+                throw new IllegalArgumentException("Reservations can only be updated to 'LOSS' if the action is performed on the same day.");
+            }
         } else {
             throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
         }
+        return null;
     }
 
     @Override
@@ -187,7 +275,7 @@ public class ReservationService implements IReservationService{
                 if (optionalReservations.isPresent()) {
                     List<Reservation> reservations = optionalReservations.get();
                     for (Reservation reservation : reservations) {
-                        reservation.setReservationStatus(ReservationStatus.LOSS);
+                        reservation.setReservationStatus(ReservationStatus.LOST);
                     }
                     reservationRepository.saveAll(reservations);
                 }

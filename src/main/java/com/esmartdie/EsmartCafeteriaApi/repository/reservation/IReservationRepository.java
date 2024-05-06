@@ -21,4 +21,5 @@ public interface IReservationRepository extends JpaRepository<Reservation, Long>
     Optional<List<Reservation>> findByReservationDate(LocalDate date);
     Optional<List<Reservation>> findByReservationDateAndShift(LocalDate date, Shift shift);
     Optional<List<Reservation>> findByReservationDateAndShiftAndReservationStatus(LocalDate date, Shift shift, ReservationStatus reservationStatus);
+    Optional<Reservation> findByClientAndReservationDateAndShift(Client client, LocalDate reservationDate, Shift shift);
 }

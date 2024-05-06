@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.text.SimpleDateFormat;
+
 import java.time.LocalDate;
-import java.util.Date;
+
 import java.util.Objects;
 
 
@@ -27,7 +27,8 @@ public class Reservation {
 
     private Integer dinners;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "record_id")
     private ReservationRecord record;
 
     @Column(name="reservation_date")

@@ -24,9 +24,9 @@ public interface IReservationService {
 
     Reservation cancelReservation(Long reservationId);
 
-    Reservation confirmReservation(Long reservationId);
+    Reservation confirmReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime);
 
-    Reservation lossReservation(Long reservationId);
+    Reservation lossReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime);
 
     void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
 }

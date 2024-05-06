@@ -27,7 +27,7 @@ public class ReservationRecord {
     @Column(name="empty_spaces")
     private Integer emptySpaces;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "record")
     List<Reservation> reservationList;
 
     @Column(name="reservation_date")
@@ -35,6 +35,7 @@ public class ReservationRecord {
 
     @Enumerated(EnumType.STRING)
     private Shift shift;
+
 
     public ReservationRecord() {
         setEmptySpaces(getMAX_CLIENTS());
