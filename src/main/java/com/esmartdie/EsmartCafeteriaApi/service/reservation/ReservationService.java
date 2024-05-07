@@ -288,28 +288,28 @@ public class ReservationService implements IReservationService{
 
     private List<Shift> getAllowedShifts(LocalTime currentTime) {
         List<Shift> allowedShifts = new ArrayList<>();
-        if (currentTime.isBefore(LocalTime.of(13, 0))) {
+        if (currentTime.isAfter(LocalTime.of(13, 0))) {
             allowedShifts.add(Shift.DAY1);
         }
-        if (currentTime.isBefore(LocalTime.of(14, 0))) {
+        if (currentTime.isAfter(LocalTime.of(14, 0))) {
             allowedShifts.add(Shift.DAY2);
         }
-        if (currentTime.isBefore(LocalTime.of(15, 0))) {
+        if (currentTime.isAfter(LocalTime.of(15, 0))) {
             allowedShifts.add(Shift.DAY3);
         }
-        if (currentTime.isBefore(LocalTime.of(17, 0))) {
+        if (currentTime.isAfter(LocalTime.of(17, 0))) {
             allowedShifts.add(Shift.DAY4);
         }
-        if (currentTime.isBefore(LocalTime.of(19, 0))) {
+        if (currentTime.isAfter(LocalTime.of(19, 0))) {
             allowedShifts.add(Shift.NIGHT1);
         }
-        if (currentTime.isBefore(LocalTime.of(20, 0))) {
+        if (currentTime.isAfter(LocalTime.of(20, 0))) {
             allowedShifts.add(Shift.NIGHT2);
         }
-        if (currentTime.isBefore(LocalTime.of(21, 0))) {
+        if (currentTime.isAfter(LocalTime.of(21, 0))) {
             allowedShifts.add(Shift.NIGHT3);
         }
-        if (currentTime.isBefore(LocalTime.of(2, 0))) {
+        if (currentTime.isAfter(LocalTime.of(22, 0))) {
             allowedShifts.add(Shift.NIGHT4);
         }
         return allowedShifts;

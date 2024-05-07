@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -200,15 +201,17 @@ class ReservationServiceTest {
         Client client = new Client();
         userRepository.save(client);
 
-        Reservation reservation1 = createReservation(client, Shift.DAY1);
+        Reservation reservation1 = createReservation(client, Shift.DAY4);
         Reservation savedReservation1 = reservationService.createReservation(reservation1);
-
-        Reservation reservation2 = createReservation(client, Shift.DAY1);
+/*
+        Reservation reservation2 = createReservation(client, Shift.DAY4);
         Reservation savedReservation2 = reservationService.createReservation(reservation2);
 
-        Reservation reservation3 = createReservation(client, Shift.DAY1);
+        Reservation reservation3 = createReservation(client, Shift.DAY4);
         Reservation savedReservation3 = reservationService.createReservation(reservation3);
 
+
+ */
 
 
 
@@ -241,6 +244,8 @@ class ReservationServiceTest {
 
  */
 
+        //Reservation reservationCancelled = createReservation(client, Shift.DAY4);
+        Reservation cancelledReservation1 = reservationService.confirmReservation(savedReservation1.getId(), LocalDate.now(), LocalTime.now());
 
     }
 
@@ -248,7 +253,7 @@ class ReservationServiceTest {
         Reservation reservation = new Reservation();
         reservation.setClient(client);
         reservation.setDinners(6);
-        reservation.setReservationDate(LocalDate.of(2024, 5, 3));
+        reservation.setReservationDate(LocalDate.of(2024, 5, 6));
         reservation.setShift(shift);
         reservation.setReservationStatus(ReservationStatus.PENDING);
         reservation.setRecord(reservationRecordRepository.findByReservationDateAndShift(reservation.getReservationDate(), shift).get());
