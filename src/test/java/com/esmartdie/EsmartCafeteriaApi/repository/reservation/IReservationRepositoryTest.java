@@ -58,7 +58,7 @@ class IReservationRepositoryTest {
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
 
-        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findByClient(client);
+        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findAllByClient(client);
 
         assertTrue(retrievedReservationsOptional.isPresent());
         List<Reservation> retrievedReservations = retrievedReservationsOptional.get();
@@ -79,7 +79,7 @@ class IReservationRepositoryTest {
         reservationRepository.save(reservation1);
         reservationRepository.save(reservation2);
 
-        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findByClientAndReservationStatus(client, ReservationStatus.CONFIRMED);
+        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.CONFIRMED);
 
         assertTrue(retrievedReservationsOptional.isPresent());
         List<Reservation> retrievedReservations = retrievedReservationsOptional.get();
@@ -98,7 +98,7 @@ class IReservationRepositoryTest {
         reservationRepository.save(reservation2);
 
 
-        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findByReservationDate(LocalDate.of(2024, 05, 11));
+        Optional<List<Reservation>> retrievedReservationsOptional = reservationRepository.findAllByReservationDate(LocalDate.of(2024, 05, 11));
 
         assertTrue(retrievedReservationsOptional.isPresent());
         List<Reservation> retrievedReservations = retrievedReservationsOptional.get();
@@ -118,13 +118,38 @@ class IReservationRepositoryTest {
         reservationRepository.save(reservation2);
 
         Optional<List<Reservation>> retrievedReservationsOptional =
-                reservationRepository.findByReservationDateAndShift(LocalDate.of(2024, 05, 11), Shift.DAY1);
+                reservationRepository.findAllByReservationDateAndShift(LocalDate.of(2024, 05, 11), Shift.DAY1);
 
 
         assertTrue(retrievedReservationsOptional.isPresent());
         List<Reservation> retrievedReservations = retrievedReservationsOptional.get();
         assertEquals(1, retrievedReservations.size());
         assertTrue(retrievedReservations.contains(reservation1));
+    }
+
+    @Test
+    public void testFindByReservationDateAndShiftAndReservationStatus() {
+        Client client = new Client();
+        userRepository.save(client);
+
+        Reservation reservation1 =  createReservation(client, Shift.DAY1);
+        reservation1.setReservationStatus(ReservationStatus.ACCEPTED);
+        reservationRepository.save(reservation1);
+
+        Reservation reservation2 = createReservation(client, Shift.DAY2);
+        reservation2.setReservationDate(LocalDate.now());
+        reservation2.setReservationStatus(ReservationStatus.CONFIRMED);
+        reservationRepository.save(reservation2);
+
+        LocalDate date = LocalDate.now();
+        Shift shift = Shift.DAY2;
+        ReservationStatus status = ReservationStatus.CONFIRMED;
+        Optional<List<Reservation>> reservations = reservationRepository.findAllByReservationDateAndShiftAndReservationStatus(date, shift, status);
+
+
+        assertEquals(1, reservations.orElse(List.of()).size());
+        assertNotEquals(reservation1.getReservationStatus(), reservations.orElseThrow().get(0).getReservationStatus());
+        assertNotEquals(reservation1.getShift(), reservations.orElseThrow().get(0).getShift());
     }
 
     private Reservation createReservation(Client client, Shift shift) {
