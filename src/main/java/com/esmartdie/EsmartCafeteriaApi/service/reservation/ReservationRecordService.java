@@ -2,16 +2,17 @@ package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.IllegalCalendarException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,5 +49,54 @@ public class ReservationRecordService implements IReservationRecordService{
         dto.setAvailableReservations(reservationRecord.getEmptySpaces());
         return dto;
     }
+
+    @Override
+    public List<ReservationRecord> createMonthCalendar(YearMonth yearMonth){
+
+        LocalDate firstDay = yearMonth.atDay(1);
+        LocalDate lastDay = yearMonth.atEndOfMonth();
+        YearMonth currentYearMonth = YearMonth.now();
+        YearMonth maxYearMonth = currentYearMonth.plusMonths(2);
+
+        Optional<List<ReservationRecord>> optionalOpenCalendar =
+                reservationRecordRepository.findAllByReservationDateBetween(firstDay, lastDay);
+
+        optionalOpenCalendar.ifPresent(openCalendar -> {
+            if (!openCalendar.isEmpty()) {
+                throw new IllegalCalendarException("The calendar is already opened.");
+            }
+        });
+
+        if(!yearMonth.isBefore(maxYearMonth)){
+            throw new IllegalCalendarException("The limit to open a new calendar is two months.");
+        }
+
+        if(yearMonth.isBefore(currentYearMonth)){
+            throw new IllegalCalendarException("Forbidden action - Calendar is in the past");
+        }
+
+
+        List<Shift> shiftList = new ArrayList<>(Arrays.asList(Shift.values()));
+        List<ReservationRecord> calendarDays = new ArrayList<>();
+
+        LocalDate currentDay = firstDay;
+
+        while (!currentDay.isAfter(lastDay)) {
+            for (Shift shift : shiftList) {
+
+                ReservationRecord calendarDay = new ReservationRecord();
+                calendarDay.setReservationDate(currentDay);
+                calendarDay.setShift(shift);
+
+                reservationRecordRepository.save(calendarDay);
+                calendarDays.add(calendarDay);
+            }
+            currentDay = currentDay.plusDays(1);
+        }
+
+        return calendarDays;
+    }
+
+
 
 }

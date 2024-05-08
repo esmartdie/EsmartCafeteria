@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +29,7 @@ public class ReservationRecord {
     private Integer emptySpaces;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "record")
-    List<Reservation> reservationList;
+    List<Reservation> reservationList = new ArrayList<>();
 
     @Column(name="reservation_date")
     private LocalDate reservationDate;
