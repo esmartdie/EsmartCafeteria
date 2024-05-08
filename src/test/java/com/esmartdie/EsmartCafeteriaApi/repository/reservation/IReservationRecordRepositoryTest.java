@@ -1,13 +1,9 @@
 package com.esmartdie.EsmartCafeteriaApi.repository.reservation;
 
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
-import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,7 +57,7 @@ class IReservationRecordRepositoryTest {
 
         LocalDate startDate = LocalDate.of(2024, 5, 2);
         LocalDate endDate = LocalDate.of(2024, 5, 4);
-        Optional<List<ReservationRecord>> result = reservationRecordRepository.findByReservationDateBetween(startDate, endDate);
+        Optional<List<ReservationRecord>> result = reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
         assertTrue(result.isPresent());
         List<ReservationRecord> records = result.get();

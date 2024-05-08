@@ -34,7 +34,7 @@ class ReservationRecordServiceTest {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
         List<ReservationRecord> mockRecords = Collections.singletonList(createMockReservationRecord());
 
-        when(reservationRecordRepository.findByReservationDateBetween(startDate, endDate))
+        when(reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate))
                 .thenReturn(Optional.of(mockRecords));
 
 
@@ -54,7 +54,7 @@ class ReservationRecordServiceTest {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
-        when(reservationRecordRepository.findByReservationDateBetween(startDate, endDate))
+        when(reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate))
                 .thenReturn(Optional.empty());
 
         List<ReservationRecordDTO> result = reservationRecordService.getReservationRecordsForMonth(year, month);

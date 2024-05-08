@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -124,7 +123,7 @@ public class ReservationController {
     public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
-            Reservation confirmedReservation = reservationService.lossReservation(reservationId, actionDate, currentTime);
+            Reservation confirmedReservation = reservationService.lostReservation(reservationId, actionDate, currentTime);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
         } catch (ReservationNotFoundException e) {
             return ResponseEntity.notFound().build();

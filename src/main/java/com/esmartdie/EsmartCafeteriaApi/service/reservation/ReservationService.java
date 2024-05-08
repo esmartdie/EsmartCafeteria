@@ -145,12 +145,12 @@ public class ReservationService implements IReservationService{
 
     @Override
     public Optional<List<Reservation>> getReservationsByClient(Client client) {
-        return reservationRepository.findByClient(client);
+        return reservationRepository.findAllByClient(client);
     }
 
     @Override
     public Optional<List<Reservation>> getAcceptedReservationsByClient(Client client) {
-        return reservationRepository.findByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+        return reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
     }
 
     @Override
@@ -160,12 +160,12 @@ public class ReservationService implements IReservationService{
 
     @Override
     public Optional<List<Reservation>> getAllReservationsForDay(LocalDate date) {
-        return reservationRepository.findByReservationDate(date);
+        return reservationRepository.findAllByReservationDate(date);
     }
 
     @Override
     public Optional<List<Reservation>>getAllReservationsForDayAndShift(LocalDate date, Shift shift) {
-        return reservationRepository.findByReservationDateAndShift(date, shift);
+        return reservationRepository.findAllByReservationDateAndShift(date, shift);
     }
 
     @Override
@@ -200,26 +200,26 @@ public class ReservationService implements IReservationService{
     @Override
     public Reservation confirmReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
         LocalDate today = LocalDate.now();
-
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
+
         if (optionalReservation.isPresent()) {
 
-            if (actionDate.equals(today)) {
+            Reservation reservation = optionalReservation.get();
+
+            if (actionDate.equals(today)&&actionDate.equals(reservation.getReservationDate())) {
                 List<Shift> allowedShifts = getAllowedShifts(currentTime);
-                Shift allowedShift = allowedShifts.getLast();
 
-                if (optionalReservation.isPresent()) {
+                for (Shift shift : allowedShifts) {
 
-                    Reservation reservation = optionalReservation.get();
-
-                    if(reservation.getReservationStatus().equals(allowedShift)){
+                    if(reservation.getShift().equals(shift)){
 
                         if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
-                            throw new ReservationException("This reservation couldn't updated to lost");
+                            throw new ReservationException("This reservation couldn't updated to confirmed");
                         }
                         reservation.setReservationStatus(ReservationStatus.CONFIRMED);
                         return reservationRepository.save(reservation);
                     }
+
                 }
             }else {
                 throw new IllegalArgumentException("Reservations can only be updated to 'CONFIRMED' if the action is performed on the same day.");
@@ -231,28 +231,28 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public Reservation lossReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
+    public Reservation lostReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
         LocalDate today = LocalDate.now();
 
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
         if (optionalReservation.isPresent()) {
 
-            if (actionDate.equals(today)) {
+            Reservation reservation = optionalReservation.get();
+
+            if (actionDate.equals(today)&&actionDate.equals(reservation.getReservationDate())) {
                 List<Shift> allowedShifts = getAllowedShifts(currentTime);
-                Shift allowedShift = allowedShifts.getLast();
 
-                if (optionalReservation.isPresent()) {
+                for (Shift shift : allowedShifts) {
 
-                    Reservation reservation = optionalReservation.get();
-
-                    if(reservation.getReservationStatus().equals(allowedShift)){
+                    if(reservation.getShift().equals(shift)){
 
                         if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
-                            throw new ReservationException("This reservation couldn't updated to lost");
+                            throw new ReservationException("This reservation couldn't updated to LOST");
                         }
                         reservation.setReservationStatus(ReservationStatus.LOST);
                         return reservationRepository.save(reservation);
                     }
+
                 }
             }else {
                 throw new IllegalArgumentException("Reservations can only be updated to 'LOSS' if the action is performed on the same day.");
@@ -266,12 +266,21 @@ public class ReservationService implements IReservationService{
     @Override
     public void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
         LocalDate today = LocalDate.now();
+        LocalTime actualTime = LocalTime.now();
+
+        if(actualTime.isBefore(LocalTime.of(10,00))){
+            LocalDate localDateAfter = actionDate.plusDays(1);
+            if(localDateAfter.equals(today)||actionDate.equals(today)){
+                today=actionDate;
+                currentTime = LocalTime.of(23, 59);
+            }
+        };
 
         if (actionDate.equals(today)) {
             List<Shift> allowedShifts = getAllowedShifts(currentTime);
             for (Shift shift : allowedShifts) {
                 Optional<List<Reservation>> optionalReservations =
-                        reservationRepository.findByReservationDateAndShiftAndReservationStatus(actionDate, shift, ReservationStatus.ACCEPTED);
+                        reservationRepository.findAllByReservationDateAndShiftAndReservationStatus(actionDate, shift, ReservationStatus.ACCEPTED);
                 if (optionalReservations.isPresent()) {
                     List<Reservation> reservations = optionalReservations.get();
                     for (Reservation reservation : reservations) {

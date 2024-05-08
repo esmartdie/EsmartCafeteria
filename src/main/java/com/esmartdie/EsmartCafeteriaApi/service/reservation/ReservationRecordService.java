@@ -28,7 +28,7 @@ public class ReservationRecordService implements IReservationRecordService{
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         Optional<List<ReservationRecord>> optionalReservationRecords =
-                reservationRecordRepository.findByReservationDateBetween(startDate, endDate);
+                reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
         if (optionalReservationRecords.isEmpty()) {
             return Collections.emptyList();
