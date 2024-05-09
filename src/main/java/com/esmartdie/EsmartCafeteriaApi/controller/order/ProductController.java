@@ -2,8 +2,8 @@ package com.esmartdie.EsmartCafeteriaApi.controller.order;
 
 import com.esmartdie.EsmartCafeteriaApi.model.order.Product;
 import com.esmartdie.EsmartCafeteriaApi.service.order.IProductService;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
-import com.esmartdie.EsmartCafeteriaApi.utils.UpdateFailedException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.UpdateFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,10 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,8 @@ public interface IUserController {
 
     void saveUser(User user);
 
-    ResponseEntity<?> createUser(@RequestBody Client client);
-
+    @PostMapping("/users/client/create")
+    ResponseEntity<String> createUser(@Valid @RequestBody ClientDTO clientDTO);
 
     ResponseEntity<?> createEmployee(@RequestBody Employee employee);
 

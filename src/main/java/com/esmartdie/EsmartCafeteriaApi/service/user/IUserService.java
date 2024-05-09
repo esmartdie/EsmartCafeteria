@@ -1,6 +1,8 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 
@@ -9,11 +11,11 @@ import java.util.Optional;
 
 public interface IUserService {
 
-    User saveUser(User user);
 
-    Role saveRole(Role role);
+    <T extends User> T saveUser(T user);
 
-    void addRoleToUser(String username, String roleName);
+
+    Client createClientFromDTO(ClientDTO clientDTO);
 
     User getUser(String username);
 

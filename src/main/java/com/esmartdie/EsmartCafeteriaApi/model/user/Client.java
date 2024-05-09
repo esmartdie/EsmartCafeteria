@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.model.user;
 
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -16,6 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@DiscriminatorValue("Client")
 public class Client extends User{
 
     private double rating;
@@ -26,7 +28,6 @@ public class Client extends User{
     public Client(Long id, String name, String lastName, String email, String password, Boolean active, Role role) {
         super(id, name, lastName, email, password, active, role);
         setRating(5.0);
-        setRole(new Role(null,"ROLE_USER"));
     }
 
 

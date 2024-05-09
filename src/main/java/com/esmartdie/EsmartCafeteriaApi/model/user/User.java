@@ -11,6 +11,7 @@ import org.hibernate.type.NumericBooleanConverter;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
 @AllArgsConstructor
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public class User {
 
     @Id
@@ -23,7 +24,7 @@ public class User {
     private String password;
     @Convert(converter = NumericBooleanConverter.class)
     private Boolean active;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 

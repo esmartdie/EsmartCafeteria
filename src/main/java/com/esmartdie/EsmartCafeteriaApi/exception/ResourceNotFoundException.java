@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.utils;
+package com.esmartdie.EsmartCafeteriaApi.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

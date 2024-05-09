@@ -2,7 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IClientRepository;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ public class ClientService implements IClientService{
 
     @Autowired
     private IClientRepository clientRepository;
-
 
 
     @Override

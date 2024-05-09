@@ -5,7 +5,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 
 public interface IRoleService {
 
-    void saveRole(Role role);
+    Role saveRole(Role role);
 
-    void addRoleToUser(RoleToUserDTO roleToUserDTO);
+    void addRoleToUser(String username, String roleName);
 }

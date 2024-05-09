@@ -2,7 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.service.order;
 
 import com.esmartdie.EsmartCafeteriaApi.model.order.Product;
 import com.esmartdie.EsmartCafeteriaApi.repository.order.IProductRepository;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

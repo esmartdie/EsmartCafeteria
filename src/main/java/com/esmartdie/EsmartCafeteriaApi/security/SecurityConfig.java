@@ -52,7 +52,27 @@ public class SecurityConfig {
                 .cors((cors) -> cors.disable())
                 .csrf((csrf) -> csrf.disable())
                         .authorizeRequests(authorize -> authorize
-                                .requestMatchers("/api/login/**").permitAll()
+                                .anyRequest().permitAll());
+
+        http.addFilter(customAuthenticationFilter);
+        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    /*
+        @Bean
+    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authManagerBuilder.getOrBuild());
+
+        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+
+        http
+                .cors((cors) -> cors.disable())
+                .csrf((csrf) -> csrf.disable())
+                        .authorizeRequests(authorize -> authorize
+                                .requestMatchers("/api/**").permitAll()
                                 .requestMatchers(GET, "/api/users").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                                 .requestMatchers(POST, "/api/users").hasAnyAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated());
@@ -62,4 +82,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+     */
 }

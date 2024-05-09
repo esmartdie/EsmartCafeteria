@@ -4,7 +4,7 @@ import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
-import com.esmartdie.EsmartCafeteriaApi.utils.IllegalCalendarException;
+import com.esmartdie.EsmartCafeteriaApi.exception.IllegalCalendarException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

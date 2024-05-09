@@ -1,11 +1,13 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
-import com.esmartdie.EsmartCafeteriaApi.utils.UpdateFailedException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.UpdateFailedException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,19 +39,10 @@ public class UserController implements IUserController{
 
     @Override
     @PostMapping("/users/client/create")
-    public ResponseEntity<?> createUser(@RequestBody Client client) {
-
-        Optional<User> existingUser = userService.getUserByEmail(client.getEmail());
-
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The email is already registered");
-        }
-
+    public ResponseEntity<String> createUser(@Valid @RequestBody ClientDTO clientDTO) {
+        Client client = userService.createClientFromDTO(clientDTO);
         userService.saveUser(client);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("The user was created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
     }
 
     @Override

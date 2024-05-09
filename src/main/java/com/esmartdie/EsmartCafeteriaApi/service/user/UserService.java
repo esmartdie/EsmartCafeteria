@@ -1,7 +1,13 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
+
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +30,6 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Autowired
     private IUserRepository userRepository;
-
 
     @Autowired
     private IRoleRepository roleRepository;
@@ -52,31 +57,51 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public <T extends User> T saveUser(T user) {
         log.info("Saving new user {} to the database", user.getName());
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public Role saveRole(Role role) {
-        log.info("Saving new role {} to the database", role.getName());
-        return roleRepository.save(role);
+    public Client createClientFromDTO(ClientDTO clientDTO) {
+
+        checkEmailAvailability(clientDTO.getEmail());
+
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
+
+        return new Client(
+                null,
+                clientDTO.getName(),
+                clientDTO.getLastName(),
+                clientDTO.getEmail(),
+                clientDTO.getPassword(),
+                clientDTO.isActive(),
+                userRole
+        );
     }
 
-    @Override
-    public void addRoleToUser(String username, String roleName) {
-        log.info("Adding role {} to user {}", roleName, username);
+    public Employee createEmployee(String name, String lastName, String email, String password, Long employeeId) {
 
-        User user = userRepository.findByName(username);
+        checkEmailAvailability(email);
 
-        Role role = roleRepository.findByName(roleName);
+        Role moderatorRole = roleRepository.findByName("ROLE_MODERATOR")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-        user.setRole(role);
-
-        userRepository.save(user);
+        Employee employee = new Employee(null, name, lastName, email, password, true, moderatorRole, employeeId);
+        return saveUser(employee);
     }
+
+    public void checkEmailAvailability(String email) {
+        if (userRepository.existsByEmail(email)) {
+            log.error("The email \" + email + \" is already registered");
+            throw new EmailAlreadyExistsException("The email " + email + " is already registered");
+        }
+    }
+
+
+
 
     @Override
     public User getUser(String username) {
