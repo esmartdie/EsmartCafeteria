@@ -19,6 +19,11 @@ public class ReservationRecordController {
     @Autowired
     private ReservationRecordService reservationRecordService;
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
     @GetMapping("/empty_spaces_month")
     public ResponseEntity<List<ReservationRecordDTO>> getReservationRecordsForMonth(
             @RequestParam("year") int year,
@@ -26,6 +31,12 @@ public class ReservationRecordController {
         List<ReservationRecordDTO> reservationRecords = reservationRecordService.getReservationRecordsForMonth(year, month);
         return ResponseEntity.ok(reservationRecords);
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
 
     @PostMapping("/create_month")
     @ResponseStatus(HttpStatus.CREATED)

@@ -9,4 +9,11 @@ public class ClientDTO {
     private String email;
     private String password;
     private boolean active;
+
+    public ClientDTO(String name, String lastName, String email, Boolean active) {
+        this.name=name;
+        this.lastName=lastName;
+        this.email=email;
+        this.active=active;
+    }
 }

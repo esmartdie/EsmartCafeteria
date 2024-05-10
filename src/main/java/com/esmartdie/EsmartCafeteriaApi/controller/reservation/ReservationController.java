@@ -25,6 +25,12 @@ public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
     @PostMapping("/clients/create")
     public ResponseEntity<String> createReservation(@RequestBody Reservation request) {
 
@@ -47,6 +53,12 @@ public class ReservationController {
         }
     }
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @GetMapping("/clients/my-reservations")
     public ResponseEntity<List<Reservation>> getMyReservations(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
@@ -54,6 +66,12 @@ public class ReservationController {
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
 
     @GetMapping("/clients/my-active-reservations")
     public ResponseEntity<List<Reservation>> getMyActiveReservation(Authentication authentication) {
@@ -63,12 +81,24 @@ public class ReservationController {
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @GetMapping("/employee/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
         Optional<Reservation> reservationOptional = reservationService.getReservationById(id);
 
         return reservationOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
 
     @GetMapping("/employee/day")
     public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
@@ -77,12 +107,24 @@ public class ReservationController {
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @GetMapping("/employee/day-shift")
     public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
 
     @PutMapping("/clients/{id}/cancel")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
@@ -108,6 +150,12 @@ public class ReservationController {
         }
     }
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @PatchMapping("/employee/{reservationId}/confirm")
     public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
@@ -119,6 +167,12 @@ public class ReservationController {
         }
     }
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @PatchMapping("/employee/{reservationId}/loss")
     public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
@@ -129,6 +183,12 @@ public class ReservationController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
 
     @PutMapping("/employee/updateLoss")
     public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,

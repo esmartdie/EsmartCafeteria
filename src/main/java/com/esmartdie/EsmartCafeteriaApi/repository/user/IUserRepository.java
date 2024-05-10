@@ -1,5 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.repository.user;
 
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,6 +11,8 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     User findByName(String username);
     Optional<User> findByEmail(String email);
     Optional <User> findById(Long id);
+
+    Optional <Client> findClientById(Long id);
 
     boolean existsByEmail(String email);
 }

@@ -4,6 +4,8 @@ package com.esmartdie.EsmartCafeteriaApi.service.user;
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
@@ -111,9 +113,22 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User getUser(String username) {
-        log.info("Fetching user {}", username);
-        return userRepository.findByName(username);
+    public User getUserById(Long id) {
+        log.info("Fetching user {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    }
+
+    @Override
+    public Client getClientById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (!(user instanceof Client)) {
+            throw new UserTypeMismatchException("User with id " + id + " is not a Client");
+        }
+
+        return (Client) user;
     }
 
     @Override
@@ -128,10 +143,5 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll();
     }
 
-    @Override
-    public Optional<User> getUserById(Long id) {
-        log.info("Fetching user {}", id);
-        return userRepository.findById(id);
-    }
 
 }

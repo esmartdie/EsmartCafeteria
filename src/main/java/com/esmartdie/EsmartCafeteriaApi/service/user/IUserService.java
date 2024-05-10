@@ -20,11 +20,11 @@ public interface IUserService {
 
     Employee createEmployeeFromDTO(EmployeeDTO employeeDTO);
 
-    User getUser(String username);
-
     List<User> getUsers();
+
+    Client getClientById(Long id);
 
     Optional<User> getUserByEmail(String email);
 
-    Optional<User> getUserById(Long id);
+    User getUserById(Long id);
 }

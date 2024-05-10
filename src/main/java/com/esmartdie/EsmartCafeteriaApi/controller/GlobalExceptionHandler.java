@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller;
 
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -41,4 +42,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    @ExceptionHandler(UserTypeMismatchException.class)
+    public ResponseEntity<String> handleUserTypeMismatchException (UserTypeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
 }

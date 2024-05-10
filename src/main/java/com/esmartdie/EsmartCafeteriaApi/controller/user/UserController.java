@@ -9,6 +9,7 @@ import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.exception.UpdateFailedException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,34 +55,36 @@ public class UserController implements IUserController{
         return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
     }
 
+
     @Override
     @GetMapping("/users/client/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public User getClientInfo(@PathVariable Long id) {
+    public ResponseEntity<ClientDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
 
-        Optional<User> existingClientOptional = userService.getUserById(id);
+        Client client = userService.getClientById(id);
 
-        if (!existingClientOptional.isPresent()) {
-            throw new ResourceNotFoundException("Client not found with id: " + id);
-        }
 
-        User existingClient = existingClientOptional.get();
+        ClientDTO clientDTO = new ClientDTO(
+                client.getName(),
+                client.getLastName(),
+                client.getEmail(),
+                client.getActive()
+        );
 
-        return existingClient;
+        return ResponseEntity.ok(clientDTO);
     }
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
     @Override
     @PatchMapping("/users/client/{id}/update")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateClientSoft(@PathVariable Long id, @RequestBody Client updatedClient) {
 
         try {
-            Optional<User> existingClientOptional = userService.getUserById(id);
-
-            if (!existingClientOptional.isPresent()) {
-                throw new ResourceNotFoundException("Client not found with id: " + id);
-            }
-
-            User existingClient = existingClientOptional.get();
+            User existingClient = userService.getUserById(id);
 
             existingClient.setName(updatedClient.getName());
             existingClient.setLastName(updatedClient.getLastName());
