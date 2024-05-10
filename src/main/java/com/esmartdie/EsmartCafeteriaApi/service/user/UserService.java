@@ -132,6 +132,18 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
+    public Employee getEmployeeById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+
+        if (!(user instanceof Employee)) {
+            throw new UserTypeMismatchException("Emp with id " + id + " is not a Employee");
+        }
+
+        return (Employee) user;
+    }
+
+    @Override
     public Optional<User> getUserByEmail(String email) {
         log.info("Fetching user {}", email);
         return userRepository.findByEmail(email);

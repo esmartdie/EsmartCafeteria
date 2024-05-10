@@ -94,6 +94,23 @@ public class UserController implements IUserController{
             throw new UpdateFailedException("Error when try to update client with id: " + id, e);
         }
     }
+    @Override
+    @GetMapping("/users/employee/{id}")
+    public ResponseEntity<EmployeeDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
+
+        Employee employee = userService.getClientById(id);
+
+
+        EmployeeDTO employeeDTO = new EmployeeDTO(
+                employee.getName(),
+                employee.getLastName(),
+                employee.getEmail(),
+                employee.getActive(),
+                employee.getEmployee_id()
+        );
+
+        return ResponseEntity.ok(employeeDTO);
+    }
 
 
 }

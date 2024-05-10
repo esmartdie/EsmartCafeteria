@@ -24,6 +24,8 @@ public interface IUserService {
 
     Client getClientById(Long id);
 
+    Employee getEmployeeById(Long id);
+
     Optional<User> getUserByEmail(String email);
 
     User getUserById(Long id);
