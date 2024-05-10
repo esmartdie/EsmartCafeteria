@@ -26,7 +26,15 @@ public interface IUserService {
 
     Employee getEmployeeById(Long id);
 
+    Client updateClientFromDTO(Long id, ClientDTO clientDTO);
+
+
     Optional<User> getUserByEmail(String email);
 
+    /*
     User getUserById(Long id);
+
+     */
+
+
 }

@@ -6,8 +6,6 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
-import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
-import com.esmartdie.EsmartCafeteriaApi.exception.UpdateFailedException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -73,32 +70,11 @@ public class UserController implements IUserController{
         return ResponseEntity.ok(clientDTO);
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-    @Override
-    @PatchMapping("/users/client/{id}/update")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateClientSoft(@PathVariable Long id, @RequestBody Client updatedClient) {
-
-        try {
-            User existingClient = userService.getUserById(id);
-
-            existingClient.setName(updatedClient.getName());
-            existingClient.setLastName(updatedClient.getLastName());
-
-            userService.saveUser(existingClient);
-        }catch (Exception e) {
-            throw new UpdateFailedException("Error when try to update client with id: " + id, e);
-        }
-    }
     @Override
     @GetMapping("/users/employee/{id}")
-    public ResponseEntity<EmployeeDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
+    public ResponseEntity<EmployeeDTO> getEmployeeInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
 
-        Employee employee = userService.getClientById(id);
+        Employee employee = userService.getEmployeeById(id);
 
 
         EmployeeDTO employeeDTO = new EmployeeDTO(
@@ -110,6 +86,15 @@ public class UserController implements IUserController{
         );
 
         return ResponseEntity.ok(employeeDTO);
+    }
+
+    @Override
+    @PatchMapping("/users/client/{id}/update")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateClient(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
+                             @Valid @RequestBody ClientDTO clientDTO) {
+
+        userService.updateClientFromDTO(id, clientDTO);
     }
 
 

@@ -7,6 +7,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,5 +24,9 @@ public interface IUserController {
 
     ResponseEntity<ClientDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id);
 
-    void updateClientSoft(@PathVariable Long id, @RequestBody Client updatedClient);
+    ResponseEntity<EmployeeDTO> getEmployeeInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id);
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void updateClient(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
+                      @Valid @RequestBody ClientDTO clientDTO);
 }

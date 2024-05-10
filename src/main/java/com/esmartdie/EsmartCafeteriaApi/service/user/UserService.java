@@ -112,12 +112,15 @@ public class UserService implements IUserService, UserDetailsService {
         }
     }
 
+    /*
     @Override
     public User getUserById(Long id) {
         log.info("Fetching user {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
+
+     */
 
     @Override
     public Client getClientById(Long id) {
@@ -134,15 +137,37 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public Employee getEmployeeById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         if (!(user instanceof Employee)) {
-            throw new UserTypeMismatchException("Emp with id " + id + " is not a Employee");
+            throw new UserTypeMismatchException("User with id " + id + " is not a Employee");
         }
 
         return (Employee) user;
     }
 
+    @Override
+    public Client updateClientFromDTO(Long id, ClientDTO clientDTO) {
+
+        Client client = (Client) userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+
+        checkEmailAvailabilityFilterIdResult(clientDTO.getEmail(), id);
+
+        client.setName(clientDTO.getName());
+        client.setLastName(clientDTO.getLastName());
+        client.setEmail(clientDTO.getEmail());
+
+        return client;
+    }
+
+    public void checkEmailAvailabilityFilterIdResult(String email, Long id) {
+        if (userRepository.existsByEmailAndIdNot(email, id)) {
+            log.error("The email \" + email + \" is already registered");
+            throw new EmailAlreadyExistsException("The email " + email + " is already registered");
+        }
+    }
+/*
     @Override
     public Optional<User> getUserByEmail(String email) {
         log.info("Fetching user {}", email);
@@ -154,6 +179,8 @@ public class UserService implements IUserService, UserDetailsService {
         log.info("Fetching all users");
         return userRepository.findAll();
     }
+
+ */
 
 
 }

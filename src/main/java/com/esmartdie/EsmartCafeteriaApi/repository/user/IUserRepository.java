@@ -11,8 +11,11 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     User findByName(String username);
     Optional<User> findByEmail(String email);
     Optional <User> findById(Long id);
-
-    Optional <Client> findClientById(Long id);
-
     boolean existsByEmail(String email);
+
+    default boolean existsByEmailAndIdNot(String email, Long id) {
+        return findByEmail(email)
+                .map(user -> !user.getId().equals(id))
+                .orElse(false);
+    }
 }
