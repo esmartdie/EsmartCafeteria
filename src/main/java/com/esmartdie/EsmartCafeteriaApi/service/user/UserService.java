@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
@@ -82,15 +83,24 @@ public class UserService implements IUserService, UserDetailsService {
         );
     }
 
-    public Employee createEmployee(String name, String lastName, String email, String password, Long employeeId) {
+    @Override
+    public Employee createEmployeeFromDTO(EmployeeDTO employeeDTO) {
 
-        checkEmailAvailability(email);
+        checkEmailAvailability(employeeDTO.getEmail());
 
-        Role moderatorRole = roleRepository.findByName("ROLE_MODERATOR")
+        Role userRole = roleRepository.findByName("ROLE_MODERATOR")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-        Employee employee = new Employee(null, name, lastName, email, password, true, moderatorRole, employeeId);
-        return saveUser(employee);
+        return new Employee(
+                null,
+                employeeDTO.getName(),
+                employeeDTO.getLastName(),
+                employeeDTO.getEmail(),
+                employeeDTO.getPassword(),
+                employeeDTO.isActive(),
+                userRole,
+                employeeDTO.getEmployee_id()
+        );
     }
 
     public void checkEmailAvailability(String email) {
@@ -99,9 +109,6 @@ public class UserService implements IUserService, UserDetailsService {
             throw new EmailAlreadyExistsException("The email " + email + " is already registered");
         }
     }
-
-
-
 
     @Override
     public User getUser(String username) {

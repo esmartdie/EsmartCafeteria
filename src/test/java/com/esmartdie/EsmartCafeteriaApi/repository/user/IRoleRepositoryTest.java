@@ -36,7 +36,7 @@ class IRoleRepositoryTest {
     @Test
     void testFindByName_RoleFound() {
         String roleName = "ROLE_ADMIN";
-        Role foundRole = roleRepository.findByName(roleName);
+        Role foundRole = roleRepository.findByName(roleName).get();
 
         assertNotNull(foundRole);
         assertEquals(roleName, foundRole.getName());
@@ -45,7 +45,7 @@ class IRoleRepositoryTest {
     @Test
     void testFindByName_RoleNotFound() {
         String roleName = "ROLE_NON_EXISTING";
-        Role foundRole = roleRepository.findByName(roleName);
+        Role foundRole = roleRepository.findByName(roleName).get();
         assertNull(foundRole);
     }
 }

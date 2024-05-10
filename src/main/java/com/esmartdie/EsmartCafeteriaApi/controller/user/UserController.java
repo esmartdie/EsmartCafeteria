@@ -1,6 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
@@ -39,7 +40,7 @@ public class UserController implements IUserController{
 
     @Override
     @PostMapping("/users/client/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO) {
         Client client = userService.createClientFromDTO(clientDTO);
         userService.saveUser(client);
         return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
@@ -47,19 +48,10 @@ public class UserController implements IUserController{
 
     @Override
     @PostMapping("/users/employee/create")
-    public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
-
-        Optional<User> existingUser = userService.getUserByEmail(employee.getEmail());
-
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The email is already registered");
-        }
-
+    public ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        Employee employee = userService.createEmployeeFromDTO(employeeDTO);
         userService.saveUser(employee);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("The employee was created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
     }
 
     @Override
