@@ -20,7 +20,7 @@ public interface IUserService {
 
     Employee createEmployeeFromDTO(EmployeeDTO employeeDTO);
 
-    List<User> getUsers();
+    // List<User> getUsers();
 
     Client getClientById(Long id);
 
@@ -29,12 +29,12 @@ public interface IUserService {
     Client updateClientFromDTO(Long id, ClientDTO clientDTO);
 
 
-    Optional<User> getUserByEmail(String email);
+    //Optional<User> getUserByEmail(String email);
 
-    /*
-    User getUserById(Long id);
 
-     */
+  //  User getUserById(Long id);
+
+
 
 
 }

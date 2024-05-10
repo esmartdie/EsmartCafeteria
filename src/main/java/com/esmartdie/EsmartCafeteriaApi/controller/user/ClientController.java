@@ -1,12 +1,15 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/client")
@@ -15,83 +18,42 @@ public class ClientController implements IClientController{
     @Autowired
     private IClientService clientService;
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public List<Client> getAllActive() {
-        return clientService.getActiveClients().get();
+    public ResponseEntity<List<ClientDTO>> getAllActive() {
+        List<ClientDTO> activeClients = clientService.getActiveClients();
+        return ResponseEntity.ok(activeClients);
+
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public List<Client> getAllInactive() {
-        return clientService.getInactiveClients().get();
+    public ResponseEntity<List<ClientDTO>> getAllInactive() {
+        List<ClientDTO>inactiveClient = clientService.getInactiveClients();
+        return ResponseEntity.ok(inactiveClient);
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
-    @PatchMapping("/{clientId}/activate")
+    @PatchMapping("/{clientId}/updateStatus")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
-    public void activateClient(@PathVariable Long clientId) {
-        clientService.activateClient(clientId);
+    public void updateClientStatus(@PathVariable Long clientId, @RequestParam boolean isActive) {
+
+        clientService.updateClientStatus(clientId, isActive);
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
-    @PatchMapping("/{clientId}/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/updateMassiveStatus")
     @Override
-    public void deactivateClient(@PathVariable Long clientId) {
-        clientService.deactivateClient(clientId);
+    public ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,
+                                   @RequestParam boolean isActive) {
+        Map<String, String> updateResults = clientService.updateClientStatus(clientDTOS, isActive);
+        return ResponseEntity.ok(updateResults);
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
-    @PatchMapping("/activate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Override
-    public void activateClients(@RequestBody List<Long> clientIds) {
-        clientService.activateClients(clientIds);
-    }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
-    @PatchMapping("/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Override
-    public void  deactivateClients(@RequestBody List<Long> clientIds) {
-        clientService.deactivateClients(clientIds);
-    }
 
     /**
      * TODO refactor and postman test

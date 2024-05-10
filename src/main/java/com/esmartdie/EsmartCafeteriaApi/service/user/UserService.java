@@ -158,6 +158,8 @@ public class UserService implements IUserService, UserDetailsService {
         client.setLastName(clientDTO.getLastName());
         client.setEmail(clientDTO.getEmail());
 
+        userRepository.save(client);
+
         return client;
     }
 

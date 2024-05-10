@@ -1,37 +1,22 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IClientController {
-    @GetMapping("/active")
-    @ResponseStatus(HttpStatus.OK)
-    List<Client> getAllActive();
+    ResponseEntity<List<ClientDTO>> getAllActive();
+    ResponseEntity<List<ClientDTO>> getAllInactive();
 
-    @GetMapping("/inactive")
-    @ResponseStatus(HttpStatus.OK)
-    List<Client> getAllInactive();
+    void updateClientStatus(@PathVariable Long clientId, @RequestParam boolean isActive);
 
-    @PatchMapping("/{clientId}/activate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void activateClient(@PathVariable Long clientId);
+    ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,
+                                                           @RequestParam boolean isActive);
 
-    @PatchMapping("/{clientId}/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deactivateClient(@PathVariable Long clientId);
-
-    @PatchMapping("/activate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void activateClients(@RequestBody List<Long> clientIds);
-
-    @PatchMapping("/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void  deactivateClients(@RequestBody List<Long> clientIds);
-
-    @PatchMapping("/{clientId}/updateRating")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     void updateClientRating(@RequestBody Client client);
 }

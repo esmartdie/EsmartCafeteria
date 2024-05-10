@@ -22,6 +22,7 @@ public class UserController implements IUserController{
     @Autowired
     private IUserService userService;
 
+    /*
     @Override
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -35,6 +36,8 @@ public class UserController implements IUserController{
     public void saveUser(@RequestBody User user) {
         userService.saveUser(user);
     }
+
+     */
 
     @Override
     @PostMapping("/users/client/create")

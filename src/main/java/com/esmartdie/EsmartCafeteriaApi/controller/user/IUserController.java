@@ -15,8 +15,8 @@ import java.util.List;
 
 public interface IUserController {
 
-    List<User> getUsers();
-    void saveUser(User user);
+    //List<User> getUsers();
+   //void saveUser(User user);
 
     ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO);
 

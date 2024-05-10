@@ -12,10 +12,10 @@ public interface IClientRepository extends JpaRepository<Client, Long> {
     List <Client> findAll();
 
     @Query("SELECT c FROM Client c WHERE c.active = true")
-    Optional<List<Client>> findAllActive();
+    List<Client> findAllActive();
 
     @Query("SELECT c FROM Client c WHERE c.active = false")
-    Optional<List<Client>> findAllInactive();
+    List<Client> findAllInactive();
 
 
 }
