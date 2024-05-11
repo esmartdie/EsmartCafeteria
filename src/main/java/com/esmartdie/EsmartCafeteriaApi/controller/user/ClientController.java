@@ -1,8 +1,9 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IClientService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class ClientController implements IClientController{
     @Override
     public ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,
                                    @RequestParam boolean isActive) {
-        Map<String, String> updateResults = clientService.updateClientStatus(clientDTOS, isActive);
+        Map<String, String> updateResults = clientService.updateClientsStatus(clientDTOS, isActive);
         return ResponseEntity.ok(updateResults);
     }
 
@@ -64,8 +65,10 @@ public class ClientController implements IClientController{
     @PatchMapping("/{clientId}/updateRating")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
-    public void updateClientRating(@RequestBody Client client) {
-        clientService.updateClientRating(client.getId(), client.getRating());
+    public void updateClientRating(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long clientId,
+                                   @Valid @RequestBody ClientDTO clientDTO) {
+
+        clientService.updateClientRating(clientId, clientDTO);
     }
 
 

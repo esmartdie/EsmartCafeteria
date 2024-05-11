@@ -67,7 +67,8 @@ public class UserController implements IUserController{
                 client.getName(),
                 client.getLastName(),
                 client.getEmail(),
-                client.getActive()
+                client.getActive(),
+                client.getRating()
         );
 
         return ResponseEntity.ok(clientDTO);

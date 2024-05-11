@@ -1,6 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 
 import java.util.List;
 import java.util.Map;
@@ -11,11 +12,10 @@ public interface IClientService {
 
     List<ClientDTO> getInactiveClients();
 
-
     void updateClientStatus(Long id, boolean isActive);
 
+    Map<String, String> updateClientsStatus(List<ClientDTO> clientDTOS, boolean isActive);
 
-    Map<String, String> updateClientStatus(List<ClientDTO> clientDTOS, boolean isActive);
 
-    void updateClientRating(Long clientId, double rating);
+    Client updateClientRating(Long clientId, ClientDTO clientDTO);
 }

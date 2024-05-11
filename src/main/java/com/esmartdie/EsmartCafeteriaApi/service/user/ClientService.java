@@ -69,7 +69,7 @@ public class ClientService implements IClientService{
     }
 
     @Override
-    public Map<String, String> updateClientStatus(List<ClientDTO> clientDTOS, boolean isActive) {
+    public Map<String, String> updateClientsStatus(List<ClientDTO> clientDTOS, boolean isActive) {
         Map<String, String> results = new HashMap<>();
 
         for (ClientDTO dto : clientDTOS) {
@@ -89,15 +89,16 @@ public class ClientService implements IClientService{
 
 
     @Override
-    public void updateClientRating(Long clientId, double rating){
-        Optional<Client> optionalClient = clientRepository.findById(clientId);
-        if (optionalClient.isPresent()) {
-            Client client = optionalClient.get();
-            client.setRating(rating);
-            clientRepository.save(client);
-        } else {
-            throw new ResourceNotFoundException("Client not found with id: " + clientId);
-        }
+    public Client updateClientRating(Long clientId, ClientDTO clientDTO ){
+
+        Client client = (Client) userRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + clientId));
+
+        client.setRating(clientDTO.getRating());
+
+        userRepository.save(client);
+
+        return client;
 
     }
 
