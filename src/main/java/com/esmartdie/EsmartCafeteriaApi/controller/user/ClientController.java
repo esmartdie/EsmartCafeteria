@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,15 +57,10 @@ public class ClientController implements IClientController{
     }
 
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
     @PatchMapping("/{clientId}/updateRating")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
+    @Validated
     public void updateClientRating(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long clientId,
                                    @Valid @RequestBody ClientDTO clientDTO) {
 
