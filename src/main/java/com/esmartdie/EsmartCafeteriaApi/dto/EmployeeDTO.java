@@ -11,6 +11,8 @@ public class EmployeeDTO {
     private boolean active;
     private Long employee_id;
 
+    public EmployeeDTO(){};
+
     public EmployeeDTO(String name, String lastName, String email, Boolean active, Long employeeId) {
         this.name=name;
         this.lastName=lastName;

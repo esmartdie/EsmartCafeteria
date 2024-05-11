@@ -29,9 +29,7 @@ public class ClientService implements IClientService{
     public List<ClientDTO> getActiveClients() {
 
         log.info("Fetching all active clients");
-
         List<Client> clients = clientRepository.findAllActive();
-
         return createClientDTOList(clients);
     }
 

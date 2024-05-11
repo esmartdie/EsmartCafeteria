@@ -13,8 +13,8 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findAll();
 
     @Query("SELECT c FROM Employee c WHERE c.active = true")
-    Optional<List<Employee>> findAllActive();
+    List<Employee> findAllActive();
 
     @Query("SELECT c FROM Employee c WHERE c.active = false")
-    Optional<List<Employee>> findAllInactive();
+    List<Employee> findAllInactive();
 }
