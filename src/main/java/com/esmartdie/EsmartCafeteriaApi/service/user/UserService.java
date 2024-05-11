@@ -1,7 +1,16 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
+
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +33,6 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Autowired
     private IUserRepository userRepository;
-
 
     @Autowired
     private IRoleRepository roleRepository;
@@ -52,38 +60,116 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public <T extends User> T saveUser(T user) {
         log.info("Saving new user {} to the database", user.getName());
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public Role saveRole(Role role) {
-        log.info("Saving new role {} to the database", role.getName());
-        return roleRepository.save(role);
+    public Client createClientFromDTO(ClientDTO clientDTO) {
+
+        checkEmailAvailability(clientDTO.getEmail());
+
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
+
+        return new Client(
+                null,
+                clientDTO.getName(),
+                clientDTO.getLastName(),
+                clientDTO.getEmail(),
+                clientDTO.getPassword(),
+                clientDTO.isActive(),
+                userRole
+        );
     }
 
     @Override
-    public void addRoleToUser(String username, String roleName) {
-        log.info("Adding role {} to user {}", roleName, username);
+    public Employee createEmployeeFromDTO(EmployeeDTO employeeDTO) {
 
-        User user = userRepository.findByName(username);
+        checkEmailAvailability(employeeDTO.getEmail());
 
-        Role role = roleRepository.findByName(roleName);
+        Role userRole = roleRepository.findByName("ROLE_MODERATOR")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-        user.setRole(role);
+        return new Employee(
+                null,
+                employeeDTO.getName(),
+                employeeDTO.getLastName(),
+                employeeDTO.getEmail(),
+                employeeDTO.getPassword(),
+                employeeDTO.isActive(),
+                userRole,
+                employeeDTO.getEmployee_id()
+        );
+    }
 
-        userRepository.save(user);
+    public void checkEmailAvailability(String email) {
+        if (userRepository.existsByEmail(email)) {
+            log.error("The email \" + email + \" is already registered");
+            throw new EmailAlreadyExistsException("The email " + email + " is already registered");
+        }
+    }
+
+    /*
+    @Override
+    public User getUserById(Long id) {
+        log.info("Fetching user {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    }
+
+     */
+
+    @Override
+    public Client getClientById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (!(user instanceof Client)) {
+            throw new UserTypeMismatchException("User with id " + id + " is not a Client");
+        }
+
+        return (Client) user;
     }
 
     @Override
-    public User getUser(String username) {
-        log.info("Fetching user {}", username);
-        return userRepository.findByName(username);
+    public Employee getEmployeeById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (!(user instanceof Employee)) {
+            throw new UserTypeMismatchException("User with id " + id + " is not a Employee");
+        }
+
+        return (Employee) user;
     }
 
+    @Override
+    public Client updateClientFromDTO(Long id, ClientDTO clientDTO) {
+
+        Client client = (Client) userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+
+        checkEmailAvailabilityFilterIdResult(clientDTO.getEmail(), id);
+
+        client.setName(clientDTO.getName());
+        client.setLastName(clientDTO.getLastName());
+        client.setEmail(clientDTO.getEmail());
+
+        userRepository.save(client);
+
+        return client;
+    }
+
+    public void checkEmailAvailabilityFilterIdResult(String email, Long id) {
+        if (userRepository.existsByEmailAndIdNot(email, id)) {
+            log.error("The email \" + email + \" is already registered");
+            throw new EmailAlreadyExistsException("The email " + email + " is already registered");
+        }
+    }
+/*
     @Override
     public Optional<User> getUserByEmail(String email) {
         log.info("Fetching user {}", email);
@@ -96,10 +182,7 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findAll();
     }
 
-    @Override
-    public Optional<User> getUserById(Long id) {
-        log.info("Fetching user {}", id);
-        return userRepository.findById(id);
-    }
+ */
+
 
 }

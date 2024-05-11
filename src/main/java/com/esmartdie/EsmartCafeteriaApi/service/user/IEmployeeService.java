@@ -1,5 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 
@@ -8,14 +9,9 @@ import java.util.Optional;
 
 public interface IEmployeeService {
 
-    Optional<List<Employee>> getActiveEmployees();
+    List<EmployeeDTO> getActiveEmployees();
 
-    Optional<List<Employee>> getInactiveEmployees();
+    List<EmployeeDTO> getInactiveEmployees();
 
-    void activateEmployee(Long employeeId);
-
-    void deactivateEmployee(Long employeeId);
-
-    void deleteEmployee(Long employeeId);
-
+    void updateEmployeeStatus(Long id, boolean isActive);
 }

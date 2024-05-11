@@ -4,8 +4,8 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationService;
-import com.esmartdie.EsmartCafeteriaApi.utils.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.utils.ReservationNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -20,12 +20,18 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/reservations")
+@RequestMapping("/api")
 public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
-    @PostMapping("/clients/create")
+
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+    @PostMapping("/users/clients/reservation/create")
     public ResponseEntity<String> createReservation(@RequestBody Reservation request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -47,7 +53,13 @@ public class ReservationController {
         }
     }
 
-    @GetMapping("/clients/my-reservations")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/users/clients/reservation/my-reservations")
     public ResponseEntity<List<Reservation>> getMyReservations(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<List<Reservation>> optionalReservationList = reservationService.getReservationsByClient(client);
@@ -55,7 +67,13 @@ public class ReservationController {
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/clients/my-active-reservations")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/users/clients/reservation/my-active-reservations")
     public ResponseEntity<List<Reservation>> getMyActiveReservation(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<List<Reservation>> optionalReservationList =  reservationService.getAcceptedReservationsByClient(client);
@@ -63,28 +81,52 @@ public class ReservationController {
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/employee/{id}")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/moderator/reservation/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
         Optional<Reservation> reservationOptional = reservationService.getReservationById(id);
 
         return reservationOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/employee/day")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/moderator/reservation/day")
     public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDay(date);
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/employee/day-shift")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/moderator/reservation/day-shift")
     public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
 
         return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/clients/{id}/cancel")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @PutMapping("/users/clients/reservation/{id}/cancel")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<Reservation> optionalReservation = reservationService.getReservationById(id);
@@ -108,7 +150,13 @@ public class ReservationController {
         }
     }
 
-    @PatchMapping("/employee/{reservationId}/confirm")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @PatchMapping("/moderator/reservation/{reservationId}/confirm")
     public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
@@ -119,7 +167,13 @@ public class ReservationController {
         }
     }
 
-    @PatchMapping("/employee/{reservationId}/loss")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @PatchMapping("/moderator/reservation/{reservationId}/loss")
     public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
@@ -130,7 +184,13 @@ public class ReservationController {
         }
     }
 
-    @PutMapping("/employee/updateLoss")
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
+    @PutMapping("/moderator/reservation/updateLoss")
     public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {

@@ -1,9 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.model.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@DiscriminatorValue("Employee")
 public class Employee extends User{
 
     private Long employee_id;
@@ -20,6 +18,5 @@ public class Employee extends User{
                     String password, Boolean active, Role role, Long employee_id) {
         super(id, name, lastName, email, password, active, role);
         this.employee_id=employee_id;
-        setRole(new Role(null,"ROLE_MODERATOR"));
     }
 }

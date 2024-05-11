@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.security;
+package com.esmartdie.EsmartCafeteriaApi.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;

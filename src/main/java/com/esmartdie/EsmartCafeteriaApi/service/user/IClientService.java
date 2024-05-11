@@ -1,24 +1,21 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface IClientService {
 
-    Optional<List<Client>> getActiveClients();
+    List<ClientDTO> getActiveClients();
 
-    Optional<List<Client>> getInactiveClients();
+    List<ClientDTO> getInactiveClients();
 
-    void activateClient(Long clientId);
+    void updateClientStatus(Long id, boolean isActive);
 
-    void deactivateClient(Long clientId);
+    Map<String, String> updateClientsStatus(List<ClientDTO> clientDTOS, boolean isActive);
 
-    void activateClients(List<Long> clientIds);
 
-    void deactivateClients(List<Long> clientIds);
-
-    void updateClientRating(Long clientId, double rating);
+    Client updateClientRating(Long clientId, ClientDTO clientDTO);
 }

@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.utils;
+package com.esmartdie.EsmartCafeteriaApi.exception;
 
 public class UpdateFailedException extends RuntimeException {
     public UpdateFailedException(String message) {

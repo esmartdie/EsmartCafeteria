@@ -1,16 +1,18 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IEmployeeRepository;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,42 +22,52 @@ public class EmployeeService implements IEmployeeService{
     @Autowired
     private IEmployeeRepository employeeRepository;
 
+    @Autowired
+    private IUserRepository userRepository;
+
     @Override
-    public Optional<List<Employee>> getActiveEmployees() {
+    public List<EmployeeDTO> getActiveEmployees() {
         log.info("Fetching all active Employees");
-        return employeeRepository.findAllActive();
+        List<Employee> employees = employeeRepository.findAllActive();
+        return createEmployeeDTOList(employees);
+    }
+
+    private List<EmployeeDTO>  createEmployeeDTOList(List<Employee> employees){
+        List<EmployeeDTO> employeeDTOList = new ArrayList<>();
+
+        for(Employee employee : employees){
+            EmployeeDTO employeeDTO;
+            employeeDTO = new EmployeeDTO();
+            employeeDTO.setName(employee.getName());
+            employeeDTO.setLastName(employee.getLastName());
+            employeeDTO.setEmail(employee.getEmail());
+            employeeDTO.setActive(employee.getActive());
+            employeeDTO.setEmployee_id(employee.getEmployee_id());
+
+            employeeDTOList.add(employeeDTO);
+        }
+
+        return employeeDTOList;
     }
 
     @Override
-    public Optional<List<Employee>> getInactiveEmployees() {
+    public List<EmployeeDTO> getInactiveEmployees() {
         log.info("Fetching all inactive Employees");
-        return employeeRepository.findAllInactive();
+        List<Employee> employees = employeeRepository.findAllInactive();
+        return createEmployeeDTOList(employees);
     }
 
     @Override
-    public void activateEmployee(Long employeeId) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            employee.setActive(true);
-            employeeRepository.save(employee);
-        } else {
-            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
-        }
+    public void updateEmployeeStatus(Long id, boolean isActive) {
+
+        Employee employee = (Employee) userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+        employee.setActive(isActive);
+        userRepository.save(employee);
     }
 
-    @Override
-    public void deactivateEmployee(Long employeeId) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            employee.setActive(false);
-            employeeRepository.save(employee);
-        } else {
-            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
-        }
-    }
 
+    /*
     @Override
     public void deleteEmployee(Long employeeId) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
@@ -66,4 +78,6 @@ public class EmployeeService implements IEmployeeService{
             throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
         }
     }
+
+     */
 }

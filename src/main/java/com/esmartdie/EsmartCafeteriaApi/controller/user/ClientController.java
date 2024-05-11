@@ -1,67 +1,70 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
-import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IClientService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/client")
+@RequestMapping("/api/moderator/client")
 public class ClientController implements IClientController{
 
     @Autowired
     private IClientService clientService;
 
+
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public List<Client> getAllActive() {
-        return clientService.getActiveClients().get();
+    public ResponseEntity<List<ClientDTO>> getAllActive() {
+        List<ClientDTO> activeClients = clientService.getActiveClients();
+        return ResponseEntity.ok(activeClients);
+
     }
+
 
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public List<Client> getAllInactive() {
-        return clientService.getInactiveClients().get();
+    public ResponseEntity<List<ClientDTO>> getAllInactive() {
+        List<ClientDTO>inactiveClient = clientService.getInactiveClients();
+        return ResponseEntity.ok(inactiveClient);
     }
 
-    @PatchMapping("/{clientId}/activate")
+    @PatchMapping("/{clientId}/updateStatus")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
-    public void activateClient(@PathVariable Long clientId) {
-        clientService.activateClient(clientId);
+    public void updateClientStatus(@PathVariable Long clientId, @RequestParam boolean isActive) {
+
+        clientService.updateClientStatus(clientId, isActive);
     }
 
-    @PatchMapping("/{clientId}/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
+    @PatchMapping("/updateMassiveStatus")
     @Override
-    public void deactivateClient(@PathVariable Long clientId) {
-        clientService.deactivateClient(clientId);
+    public ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,
+                                   @RequestParam boolean isActive) {
+        Map<String, String> updateResults = clientService.updateClientsStatus(clientDTOS, isActive);
+        return ResponseEntity.ok(updateResults);
     }
 
-    @PatchMapping("/activate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Override
-    public void activateClients(@RequestBody List<Long> clientIds) {
-        clientService.activateClients(clientIds);
-    }
-
-    @PatchMapping("/deactivate")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Override
-    public void  deactivateClients(@RequestBody List<Long> clientIds) {
-        clientService.deactivateClients(clientIds);
-    }
 
     @PatchMapping("/{clientId}/updateRating")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
-    public void updateClientRating(@RequestBody Client client) {
-        clientService.updateClientRating(client.getId(), client.getRating());
+    @Validated
+    public void updateClientRating(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long clientId,
+                                   @Valid @RequestBody ClientDTO clientDTO) {
+
+        clientService.updateClientRating(clientId, clientDTO);
     }
 
 

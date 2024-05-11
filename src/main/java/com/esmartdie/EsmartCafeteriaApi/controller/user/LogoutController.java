@@ -24,6 +24,12 @@ public class LogoutController {
     @Autowired
     private IUserLogsService userLogsService;
 
+    /**
+     * TODO refactor and postman test
+     * @param id
+     * @return
+     */
+
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(HttpServletRequest request, HttpServletResponse response) {

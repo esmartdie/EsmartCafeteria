@@ -1,18 +1,19 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
-import com.esmartdie.EsmartCafeteriaApi.utils.UpdateFailedException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -21,6 +22,7 @@ public class UserController implements IUserController{
     @Autowired
     private IUserService userService;
 
+    /*
     @Override
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
@@ -35,76 +37,68 @@ public class UserController implements IUserController{
         userService.saveUser(user);
     }
 
+     */
+
     @Override
-    @PostMapping("/users/client/create")
-    public ResponseEntity<?> createUser(@RequestBody Client client) {
-
-        Optional<User> existingUser = userService.getUserByEmail(client.getEmail());
-
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The email is already registered");
-        }
-
+    @PostMapping("/signup")
+    public ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO) {
+        Client client = userService.createClientFromDTO(clientDTO);
         userService.saveUser(client);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("The user was created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
     }
 
     @Override
-    @PostMapping("/users/employee/create")
-    public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
-
-        Optional<User> existingUser = userService.getUserByEmail(employee.getEmail());
-
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The email is already registered");
-        }
-
+    @PostMapping("/admin/employee/create")
+    public ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        Employee employee = userService.createEmployeeFromDTO(employeeDTO);
         userService.saveUser(employee);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("The employee was created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
     }
+
 
     @Override
     @GetMapping("/users/client/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public User getClientInfo(@PathVariable Long id) {
+    public ResponseEntity<ClientDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
 
-        Optional<User> existingClientOptional = userService.getUserById(id);
+        Client client = userService.getClientById(id);
 
-        if (!existingClientOptional.isPresent()) {
-            throw new ResourceNotFoundException("Client not found with id: " + id);
-        }
 
-        User existingClient = existingClientOptional.get();
+        ClientDTO clientDTO = new ClientDTO(
+                client.getName(),
+                client.getLastName(),
+                client.getEmail(),
+                client.getActive(),
+                client.getRating()
+        );
 
-        return existingClient;
+        return ResponseEntity.ok(clientDTO);
     }
+
+    @Override
+    @GetMapping("/admin/employee/{id}")
+    public ResponseEntity<EmployeeDTO> getEmployeeInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
+
+        Employee employee = userService.getEmployeeById(id);
+
+
+        EmployeeDTO employeeDTO = new EmployeeDTO(
+                employee.getName(),
+                employee.getLastName(),
+                employee.getEmail(),
+                employee.getActive(),
+                employee.getEmployee_id()
+        );
+
+        return ResponseEntity.ok(employeeDTO);
+    }
+
     @Override
     @PatchMapping("/users/client/{id}/update")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateClientSoft(@PathVariable Long id, @RequestBody Client updatedClient) {
+    public void updateClient(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
+                             @Valid @RequestBody ClientDTO clientDTO) {
 
-        try {
-            Optional<User> existingClientOptional = userService.getUserById(id);
-
-            if (!existingClientOptional.isPresent()) {
-                throw new ResourceNotFoundException("Client not found with id: " + id);
-            }
-
-            User existingClient = existingClientOptional.get();
-
-            existingClient.setName(updatedClient.getName());
-            existingClient.setLastName(updatedClient.getLastName());
-
-            userService.saveUser(existingClient);
-        }catch (Exception e) {
-            throw new UpdateFailedException("Error when try to update client with id: " + id, e);
-        }
+        userService.updateClientFromDTO(id, clientDTO);
     }
 
 

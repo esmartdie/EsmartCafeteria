@@ -2,7 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.service.order;
 
 import com.esmartdie.EsmartCafeteriaApi.model.order.Product;
 import com.esmartdie.EsmartCafeteriaApi.repository.order.IProductRepository;
-import com.esmartdie.EsmartCafeteriaApi.utils.ResourceNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
