@@ -41,21 +41,25 @@ public class UserService implements IUserService, UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
 
-        User user = userRepository.findByName(username);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        if (!user.getActive()) {
+            throw new UsernameNotFoundException("User with email " + email + " is not active");
+        }
 
         if (user == null) {
             log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
         } else {
-            log.info("User found in the database: {}", username);
+            log.info("User found in the database: {}", email);
 
             GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getName());
 
-            return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), Collections.singleton(authority));
+            return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
         }
     }
 
