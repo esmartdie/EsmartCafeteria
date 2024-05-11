@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/client")
+@RequestMapping("/api/moderator/client")
 public class ClientController implements IClientController{
 
     @Autowired

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/reservation")
+@RequestMapping("/api")
 public class ReservationController {
 
     @Autowired
@@ -31,7 +31,7 @@ public class ReservationController {
      * @param id
      * @return
      */
-    @PostMapping("/clients/create")
+    @PostMapping("/users/clients/reservation/create")
     public ResponseEntity<String> createReservation(@RequestBody Reservation request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,7 +59,7 @@ public class ReservationController {
      * @return
      */
 
-    @GetMapping("/clients/my-reservations")
+    @GetMapping("/users/clients/reservation/my-reservations")
     public ResponseEntity<List<Reservation>> getMyReservations(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<List<Reservation>> optionalReservationList = reservationService.getReservationsByClient(client);
@@ -73,7 +73,7 @@ public class ReservationController {
      * @return
      */
 
-    @GetMapping("/clients/my-active-reservations")
+    @GetMapping("/users/clients/reservation/my-active-reservations")
     public ResponseEntity<List<Reservation>> getMyActiveReservation(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<List<Reservation>> optionalReservationList =  reservationService.getAcceptedReservationsByClient(client);
@@ -87,7 +87,7 @@ public class ReservationController {
      * @return
      */
 
-    @GetMapping("/employee/{id}")
+    @GetMapping("/moderator/reservation/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
         Optional<Reservation> reservationOptional = reservationService.getReservationById(id);
 
@@ -100,7 +100,7 @@ public class ReservationController {
      * @return
      */
 
-    @GetMapping("/employee/day")
+    @GetMapping("/moderator/reservation/day")
     public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDay(date);
 
@@ -113,7 +113,7 @@ public class ReservationController {
      * @return
      */
 
-    @GetMapping("/employee/day-shift")
+    @GetMapping("/moderator/reservation/day-shift")
     public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
         Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
 
@@ -126,7 +126,7 @@ public class ReservationController {
      * @return
      */
 
-    @PutMapping("/clients/{id}/cancel")
+    @PutMapping("/users/clients/reservation/{id}/cancel")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();
         Optional<Reservation> optionalReservation = reservationService.getReservationById(id);
@@ -156,7 +156,7 @@ public class ReservationController {
      * @return
      */
 
-    @PatchMapping("/employee/{reservationId}/confirm")
+    @PatchMapping("/moderator/reservation/{reservationId}/confirm")
     public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
@@ -173,7 +173,7 @@ public class ReservationController {
      * @return
      */
 
-    @PatchMapping("/employee/{reservationId}/loss")
+    @PatchMapping("/moderator/reservation/{reservationId}/loss")
     public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
@@ -190,7 +190,7 @@ public class ReservationController {
      * @return
      */
 
-    @PutMapping("/employee/updateLoss")
+    @PutMapping("/moderator/reservation/updateLoss")
     public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {

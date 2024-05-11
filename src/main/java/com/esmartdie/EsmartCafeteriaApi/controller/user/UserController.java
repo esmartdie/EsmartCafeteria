@@ -40,7 +40,7 @@ public class UserController implements IUserController{
      */
 
     @Override
-    @PostMapping("/users/client/create")
+    @PostMapping("/signup")
     public ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO) {
         Client client = userService.createClientFromDTO(clientDTO);
         userService.saveUser(client);
@@ -48,7 +48,7 @@ public class UserController implements IUserController{
     }
 
     @Override
-    @PostMapping("/users/employee/create")
+    @PostMapping("/admin/employee/create")
     public ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
         Employee employee = userService.createEmployeeFromDTO(employeeDTO);
         userService.saveUser(employee);
@@ -75,7 +75,7 @@ public class UserController implements IUserController{
     }
 
     @Override
-    @GetMapping("/users/employee/{id}")
+    @GetMapping("/admin/employee/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
 
         Employee employee = userService.getEmployeeById(id);
