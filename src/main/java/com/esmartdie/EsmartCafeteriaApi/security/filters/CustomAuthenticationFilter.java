@@ -2,8 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.esmartdie.EsmartCafeteriaApi.model.user.User;
-import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
+
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserLogsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -14,18 +13,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
+
 
 import java.io.IOException;
-import java.time.LocalDate;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -33,11 +34,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${jwt.expiration.minutes:10}")
-    private int jwtExpirationInMinutes;
 
     @Autowired
     private IUserLogsService userLogsService;
@@ -55,14 +51,17 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         log.info("Password is: {}", password);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+        /*Authentication authentication = authenticationManager.authenticate(authenticationToken);
         User user = (User) authentication.getPrincipal();
 
         if (!user.getActive()) {
             throw new DisabledException("User account is not active");
         }
 
-        return authentication;
+         */
+
+        return authenticationManager.authenticate(authenticationToken);
     }
 
     @Override
@@ -71,15 +70,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         User user = (User) authentication.getPrincipal();
 
-        userLogsService.createUserLoginLog(user);
 
-        Algorithm algorithm = Algorithm.HMAC256(jwtSecret.getBytes());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
 
         String access_token = JWT.create()
-                .withSubject(user.getName())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpirationInMinutes * 60 * 1000))
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
-                .withClaim("role", user.getRole().getName())
+                .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
         Map<String, String> tokens = new HashMap<>();

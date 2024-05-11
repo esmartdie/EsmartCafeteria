@@ -24,7 +24,7 @@ public class User {
     private String password;
     @Convert(converter = NumericBooleanConverter.class)
     private Boolean active;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 

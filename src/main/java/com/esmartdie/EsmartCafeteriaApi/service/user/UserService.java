@@ -13,6 +13,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements IUserService, UserDetailsService {
+public class UserService implements IUserService {
 
     @Autowired
     private IUserRepository userRepository;
@@ -39,8 +40,9 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+/*
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
 
@@ -62,6 +64,8 @@ public class UserService implements IUserService, UserDetailsService {
             return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
         }
     }
+
+ */
 
     @Override
     public <T extends User> T saveUser(T user) {
