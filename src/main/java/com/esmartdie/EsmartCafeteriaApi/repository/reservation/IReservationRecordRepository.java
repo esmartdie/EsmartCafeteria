@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface IReservationRecordRepository extends JpaRepository<ReservationRecord, Long> {
 
-    Optional<List<ReservationRecord>> findAllByReservationDateBetween(LocalDate startDate, LocalDate endDate);
+    List<ReservationRecord> findAllByReservationDateBetween(LocalDate startDate, LocalDate endDate);
 
     Optional<ReservationRecord> findByReservationDateAndShift(LocalDate reservationDate, Shift shift);
 }

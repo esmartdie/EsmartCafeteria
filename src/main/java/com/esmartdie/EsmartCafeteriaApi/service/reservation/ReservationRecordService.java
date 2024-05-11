@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +29,9 @@ public class ReservationRecordService implements IReservationRecordService{
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
-        Optional<List<ReservationRecord>> optionalReservationRecords =
+        List<ReservationRecord> reservationRecords =
                 reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
-        if (optionalReservationRecords.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ReservationRecord> reservationRecords = optionalReservationRecords.get();
         return reservationRecords.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -53,19 +49,30 @@ public class ReservationRecordService implements IReservationRecordService{
     @Override
     public List<ReservationRecord> createMonthCalendar(YearMonth yearMonth){
 
+        validateCalendarDates(yearMonth);
+
+        List<ReservationRecord> calendarDays = IntStream.rangeClosed(1, yearMonth.lengthOfMonth())
+                .mapToObj(day -> createDayRecords(yearMonth.atDay(day)))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        reservationRecordRepository.saveAll(calendarDays);
+        return calendarDays;
+    }
+
+    private void validateCalendarDates(YearMonth yearMonth) {
+
         LocalDate firstDay = yearMonth.atDay(1);
         LocalDate lastDay = yearMonth.atEndOfMonth();
         YearMonth currentYearMonth = YearMonth.now();
         YearMonth maxYearMonth = currentYearMonth.plusMonths(2);
 
-        Optional<List<ReservationRecord>> optionalOpenCalendar =
+        List<ReservationRecord> existingCalendar  =
                 reservationRecordRepository.findAllByReservationDateBetween(firstDay, lastDay);
 
-        optionalOpenCalendar.ifPresent(openCalendar -> {
-            if (!openCalendar.isEmpty()) {
-                throw new IllegalCalendarException("The calendar is already opened.");
-            }
-        });
+        if (!existingCalendar.isEmpty()) {
+            throw new IllegalCalendarException("The calendar is already opened.");
+        }
 
         if(!yearMonth.isBefore(maxYearMonth)){
             throw new IllegalCalendarException("The limit to open a new calendar is two months.");
@@ -75,28 +82,13 @@ public class ReservationRecordService implements IReservationRecordService{
             throw new IllegalCalendarException("Forbidden action - Calendar is in the past");
         }
 
-
-        List<Shift> shiftList = new ArrayList<>(Arrays.asList(Shift.values()));
-        List<ReservationRecord> calendarDays = new ArrayList<>();
-
-        LocalDate currentDay = firstDay;
-
-        while (!currentDay.isAfter(lastDay)) {
-            for (Shift shift : shiftList) {
-
-                ReservationRecord calendarDay = new ReservationRecord();
-                calendarDay.setReservationDate(currentDay);
-                calendarDay.setShift(shift);
-
-                reservationRecordRepository.save(calendarDay);
-                calendarDays.add(calendarDay);
-            }
-            currentDay = currentDay.plusDays(1);
-        }
-
-        return calendarDays;
     }
 
+    private List<ReservationRecord> createDayRecords(LocalDate date) {
+        return Arrays.stream(Shift.values())
+                .map(shift -> new ReservationRecord(date, shift))
+                .collect(Collectors.toList());
+    }
 
 
 }

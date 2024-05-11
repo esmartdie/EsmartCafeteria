@@ -42,6 +42,12 @@ public class ReservationRecord {
         setEmptySpaces(getMAX_CLIENTS());
     }
 
+    public ReservationRecord(LocalDate date, Shift shift) {
+        this.reservationDate=date;
+        this.shift=shift;
+        setEmptySpaces(MAX_CLIENTS);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
