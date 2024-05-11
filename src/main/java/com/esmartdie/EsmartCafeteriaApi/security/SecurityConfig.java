@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/login/**").permitAll()
                         .requestMatchers("/api/signup").permitAll()
                         .requestMatchers("/api/logout").permitAll()
+                        .requestMatchers("/api/calendar/empty_spaces_month").permitAll()
+                        .requestMatchers("/api/calendar/create_month").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/moderator/**").hasAuthority("ROLE_MODERATOR")
                         .requestMatchers("/api/users/**").hasAuthority("ROLE_USER")
