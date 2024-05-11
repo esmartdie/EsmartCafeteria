@@ -1,4 +1,4 @@
-package com.esmartdie.EsmartCafeteriaApi.security;
+package com.esmartdie.EsmartCafeteriaApi.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -12,7 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -28,11 +30,14 @@ import java.util.Map;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
-//@Component
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-
     private final AuthenticationManager authenticationManager;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration.minutes:10}")
+    private int jwtExpirationInMinutes;
 
     @Autowired
     private IUserLogsService userLogsService;
@@ -50,8 +55,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         log.info("Password is: {}", password);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        User user = (User) authentication.getPrincipal();
 
-        return authenticationManager.authenticate(authenticationToken);
+        if (!user.getActive()) {
+            throw new DisabledException("User account is not active");
+        }
+
+        return authentication;
     }
 
     @Override
@@ -62,11 +73,11 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         userLogsService.createUserLoginLog(user);
 
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        Algorithm algorithm = Algorithm.HMAC256(jwtSecret.getBytes());
 
         String access_token = JWT.create()
                 .withSubject(user.getName())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpirationInMinutes * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("role", user.getRole().getName())
                 .sign(algorithm);
