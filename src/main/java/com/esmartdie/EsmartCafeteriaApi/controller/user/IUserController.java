@@ -27,7 +27,6 @@ public interface IUserController {
 
     ResponseEntity<EmployeeDTO> getEmployeeInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id);
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     void updateClient(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
                       @Valid @RequestBody ClientDTO clientDTO);
 }

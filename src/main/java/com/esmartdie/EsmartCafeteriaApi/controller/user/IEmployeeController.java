@@ -10,15 +10,9 @@ import java.util.List;
 
 public interface IEmployeeController {
 
-    @GetMapping("/active")
-    @ResponseStatus(HttpStatus.OK)
     ResponseEntity<List<EmployeeDTO>> getAllActive();
 
-    @GetMapping("/inactive")
-    @ResponseStatus(HttpStatus.OK)
     ResponseEntity<List<EmployeeDTO>>  getAllInactive();
 
-    @PatchMapping("/{employeeId}/updateStatus")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     void updateEmployeeStatus(@PathVariable Long employeeId, @RequestParam boolean isActive);
 }

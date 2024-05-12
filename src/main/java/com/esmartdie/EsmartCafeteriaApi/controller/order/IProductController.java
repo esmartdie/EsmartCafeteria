@@ -12,8 +12,6 @@ public interface IProductController {
 
     Collection<Product> getProducts();
 
-    @GetMapping("/products/inactive")
-    @ResponseStatus(HttpStatus.OK)
     Collection<Product> getInactiveProducts();
 
     ResponseEntity<?> saveProduct(@RequestBody Product product);

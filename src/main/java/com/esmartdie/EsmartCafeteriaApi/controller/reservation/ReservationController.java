@@ -4,12 +4,10 @@ import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationService;
 import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,11 +20,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class ReservationController {
+public class ReservationController implements IReservationController{
 
     @Autowired
     private ReservationService reservationService;
@@ -34,6 +31,7 @@ public class ReservationController {
 
     @PostMapping("/users/clients/reservation/create")
     @PreAuthorize("hasAuthority('ROLE_USER')")
+    @Override
     public ResponseEntity<String> createReservation(@RequestBody NewReservationDTO request) {
         try {
             reservationService.createReservation(request);
@@ -46,6 +44,7 @@ public class ReservationController {
 
 
     @GetMapping("/users/clients/reservation/my-reservations")
+    @Override
     public ResponseEntity<List<ReservationDTO>> getMyReservations(Authentication authentication) {
 
         Client client = reservationService.getClientFromAuthentication(authentication);
@@ -62,6 +61,7 @@ public class ReservationController {
     }
 
     @GetMapping("/users/clients/reservation/my-active-reservations")
+    @Override
     public ResponseEntity<List<ReservationDTO>> getMyActiveReservation(Authentication authentication) {
         Client client = reservationService.getClientFromAuthentication(authentication);
 
@@ -77,24 +77,28 @@ public class ReservationController {
     }
 
     @GetMapping("/moderator/reservation/{id}")
+    @Override
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
         ReservationDTO reservationDTO = reservationService.getReservationById(id);
         return ResponseEntity.ok(reservationDTO);
     }
 
     @GetMapping("/moderator/reservation/day")
+    @Override
     public ResponseEntity<List<ReservationDTO>> getAllReservationsForDay(@RequestParam LocalDate date) {
         List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
         return ResponseEntity.ok(reservationDTOList);
     }
 
     @GetMapping("/moderator/reservation/day-shift")
+    @Override
     public ResponseEntity<List<ReservationDTO>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
         List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
         return ResponseEntity.ok(reservationDTOList);
     }
 
     @PutMapping("/users/clients/reservation/{id}/cancel")
+    @Override
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
 
         Client client = reservationService.getClientFromAuthentication(authentication);
@@ -104,6 +108,7 @@ public class ReservationController {
     }
 
     @PatchMapping("/moderator/reservation/{reservationId}/updateStatus")
+    @Override
     public ResponseEntity<?> updateReservationStatus(@PathVariable Long reservationId, @RequestBody ReservationStatusUpdatedDTO request) {
 
         ReservationDTO updatedReservation = reservationService.updateReservationStatus(reservationId, request);
@@ -113,6 +118,7 @@ public class ReservationController {
 
 
     @PutMapping("/moderator/reservation/massiveReservationUpdatingToLoss")
+    @Override
     public ResponseEntity<?> updateReservationsMassivelyToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {

@@ -17,12 +17,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/calendar")
-public class ReservationRecordController {
+public class ReservationRecordController implements IReservationRecordController{
 
     @Autowired
     private ReservationRecordService reservationRecordService;
 
     @GetMapping("/empty_spaces_month")
+    @Override
     public ResponseEntity<List<ReservationRecordDTO>> getReservationRecordsForMonth(
             @RequestParam("year") @Min(value = 2024, message = "Year must be greater than or equal to 1000") int year,
             @RequestParam("month") @Min(value = 1, message = "Month must be between 1 and 12") @Max(value = 12,
@@ -34,6 +35,7 @@ public class ReservationRecordController {
 
     @PostMapping("/create_month")
     @ResponseStatus(HttpStatus.CREATED)
+    @Override
     public ResponseEntity<CalendarCreationResponseDTO> createCalendar(@RequestBody YearMonthDTO yearMonthDTO) {
         YearMonth yearMonth = yearMonthDTO.getYearMonth();
 
