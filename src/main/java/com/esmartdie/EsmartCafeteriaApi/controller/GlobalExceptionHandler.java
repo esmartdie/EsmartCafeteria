@@ -1,9 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.controller;
 
-import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
-import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
+import com.esmartdie.EsmartCafeteriaApi.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -96,6 +93,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAccessDeniedException() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to create reservations.");
     }
+
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ResponseEntity<String> handleReservationNotFound(ReservationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
 
 
 }

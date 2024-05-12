@@ -1,7 +1,9 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
-import com.esmartdie.EsmartCafeteriaApi.dto.MyReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
@@ -44,12 +46,12 @@ public class ReservationController {
 
 
     @GetMapping("/users/clients/reservation/my-reservations")
-    public ResponseEntity<List<MyReservationDTO>> getMyReservations(Authentication authentication) {
+    public ResponseEntity<List<ReservationDTO>> getMyReservations(Authentication authentication) {
 
         Client client = reservationService.getClientFromAuthentication(authentication);
 
         try {
-            List<MyReservationDTO> reservations = reservationService.getReservationsByClient(client);
+            List<ReservationDTO> reservations = reservationService.getReservationsByClient(client);
             if (reservations.isEmpty()) {
                 return ResponseEntity.ok(Collections.emptyList());
             }
@@ -58,14 +60,13 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping("/users/clients/reservation/my-active-reservations")
-    public ResponseEntity<List<MyReservationDTO>> getMyActiveReservation(Authentication authentication) {
+    public ResponseEntity<List<ReservationDTO>> getMyActiveReservation(Authentication authentication) {
         Client client = reservationService.getClientFromAuthentication(authentication);
 
         try {
-            List<MyReservationDTO> reservations = reservationService.getAcceptedReservationsByClient(client);
+            List<ReservationDTO> reservations = reservationService.getAcceptedReservationsByClient(client);
             if (reservations.isEmpty()) {
                 return ResponseEntity.ok(Collections.emptyList());
             }
@@ -75,117 +76,44 @@ public class ReservationController {
         }
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
     @GetMapping("/moderator/reservation/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Optional<Reservation> reservationOptional = reservationService.getReservationById(id);
-
-        return reservationOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
+        ReservationDTO reservationDTO = reservationService.getReservationById(id);
+        return ResponseEntity.ok(reservationDTO);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/moderator/reservation/day")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
-        Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDay(date);
-
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<List<ReservationDTO>> getAllReservationsForDay(@RequestParam LocalDate date) {
+        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
+        return ResponseEntity.ok(reservationDTOList);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/moderator/reservation/day-shift")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
-        Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
-
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<List<ReservationDTO>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
+        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
+        return ResponseEntity.ok(reservationDTOList);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @PutMapping("/users/clients/reservation/{id}/cancel")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<Reservation> optionalReservation = reservationService.getReservationById(id);
 
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            if (!reservation.getClient().equals(client)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to cancel this reservation.");
-            }
+        Client client = reservationService.getClientFromAuthentication(authentication);
 
-            try {
-                reservationService.cancelReservation(id);
-                return ResponseEntity.ok("Reservation successfully canceled.");
-            } catch (ReservationException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }catch (ReservationNotFoundException e) {
-                return ResponseEntity.notFound().build();
-            }
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        reservationService.cancelReservation(id, client);
+        return ResponseEntity.ok().build();
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+    @PatchMapping("/moderator/reservation/{reservationId}/updateStatus")
+    public ResponseEntity<?> updateReservationStatus(@PathVariable Long reservationId, @RequestBody ReservationStatusUpdatedDTO request) {
 
-    @PatchMapping("/moderator/reservation/{reservationId}/confirm")
-    public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
-                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            Reservation confirmedReservation = reservationService.confirmReservation(reservationId, actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
-        } catch (ReservationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ReservationDTO updatedReservation = reservationService.updateReservationStatus(reservationId, request);
+        return ResponseEntity.ok(new GenericApiResponseDTO(true, "Reservation updated successfully", updatedReservation));
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
-    @PatchMapping("/moderator/reservation/{reservationId}/loss")
-    public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
-                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            Reservation confirmedReservation = reservationService.lostReservation(reservationId, actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
-        } catch (ReservationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
-    @PutMapping("/moderator/reservation/updateLoss")
-    public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
+    @PutMapping("/moderator/reservation/massiveReservationUpdatingToLoss")
+    public ResponseEntity<?> updateReservationsMassivelyToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
         try {
             reservationService.updateReservationsToLoss(actionDate, currentTime);
