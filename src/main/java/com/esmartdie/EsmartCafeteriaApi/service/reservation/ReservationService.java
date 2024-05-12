@@ -44,7 +44,7 @@ public class ReservationService implements IReservationService{
 
 
     @Override
-    public Reservation createReservation(NewReservationDTO reservationDTO) {
+    public ReservationDTO createReservation(NewReservationDTO reservationDTO) {
 
         Reservation reservation = createReservationFromDTO(reservationDTO);
 
@@ -71,14 +71,25 @@ public class ReservationService implements IReservationService{
  */
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
-        return savedReservation;
+
+        return convertToReservationDTO(savedReservation);
     }
 
     private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
 
+        Client client = (Client)userRepository.findById(reservationDTO.getClient().getId()).orElseThrow(
+                ()->new ResourceNotFoundException("Client not found with id: " +reservationDTO.getClient().getId()));
+
+        ReservationRecord record = reservationRecordRepository.
+                findByReservationDateAndShift(reservationDTO.getReservationDate(), reservationDTO.getShift()).orElseThrow(
+                        ()->new IllegalCalendarException("Calendar not found with with date " +
+                                reservationDTO.getReservationDate()+ " and shift "+ reservationDTO.getShift()));
+
+
         return new Reservation(
-                reservationDTO.getClient(),
+                client,
                 reservationDTO.getDinners(),
+                record,
                 reservationDTO.getReservationDate(),
                 reservationDTO.getShift());
     }
@@ -151,8 +162,8 @@ public class ReservationService implements IReservationService{
 
         ReservationRecord reservationRecord = reservationRecordRepository
                 .findByReservationDateAndShift(reservationDate, shift)
-                .orElseThrow(() -> new ReservationNotFoundException("No reservations found for the specified date and shift"));
-        List<Reservation> reservations = reservationRecord.getReservationList();
+                .orElseThrow(() -> new IllegalCalendarException("No reservations found for the specified date and shift"));
+        List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(reservationDate, shift);
 
         int totalDinners = reservations.stream()
                 .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
@@ -256,7 +267,7 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public Reservation cancelReservation(Long reservationId, Client client) throws ReservationNotFoundException, ReservationException {
+    public ReservationDTO cancelReservation(Long reservationId, Client client) throws ReservationNotFoundException, ReservationException {
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + reservationId));
@@ -278,9 +289,9 @@ public class ReservationService implements IReservationService{
         }
 
         reservation.setReservationStatus(ReservationStatus.CANCELED);
-        reservationRepository.save(reservation);
+        reservation = reservationRepository.save(reservation);
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
-        return reservation;
+        return convertToReservationDTO(reservation);
     }
 
     @Override

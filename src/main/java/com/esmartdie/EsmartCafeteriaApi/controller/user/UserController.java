@@ -1,8 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
-import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
@@ -42,18 +40,16 @@ public class UserController implements IUserController{
 
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<String> createClient(@Valid @RequestBody NewClientDTO clientDTO) {
-        Client client = userService.createClientFromDTO(clientDTO);
-        userService.saveUser(client);
-        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
+    public ResponseEntity<?> createClient(@Valid @RequestBody NewClientDTO clientDTO) {
+        ClientDTO client = userService.createClientFromDTO(clientDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "User created successfully", client));
     }
 
     @Override
     @PostMapping("/admin/employee/create")
-    public ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        Employee employee = userService.createEmployeeFromDTO(employeeDTO);
-        userService.saveUser(employee);
-        return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");
+    public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        EmployeeDTO employee = userService.createEmployeeFromDTO(employeeDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "Employee created successfully", employee));
     }
 
 
@@ -97,7 +93,7 @@ public class UserController implements IUserController{
     @PatchMapping("/users/client/{id}/update")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateClient(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
-                             @Valid @RequestBody ClientDTO clientDTO) {
+                             @Valid @RequestBody UpdateClientDTO clientDTO) {
 
         userService.updateClientFromDTO(id, clientDTO);
     }

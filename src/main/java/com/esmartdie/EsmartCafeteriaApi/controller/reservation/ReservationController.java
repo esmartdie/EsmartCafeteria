@@ -4,6 +4,8 @@ import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationService;
@@ -32,16 +34,11 @@ public class ReservationController implements IReservationController{
     @PostMapping("/users/clients/reservation/create")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @Override
-    public ResponseEntity<String> createReservation(@RequestBody NewReservationDTO request) {
-        try {
-            reservationService.createReservation(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Reservation created successfully.");
-        } catch (ReservationException e) {
-            return ResponseEntity.badRequest().body("Failed to create reservation: " + e.getMessage());
-        }
+    public ResponseEntity<?> createReservation(@RequestBody NewReservationDTO request) {
+
+        ReservationDTO reservation = reservationService.createReservation(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "Reservation created successfully", reservation));
     }
-
-
 
     @GetMapping("/users/clients/reservation/my-reservations")
     @Override
@@ -93,7 +90,7 @@ public class ReservationController implements IReservationController{
     @GetMapping("/moderator/reservation/day-shift")
     @Override
     public ResponseEntity<List<ReservationDTO>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
-        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
+        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDayAndShift(date,shift);
         return ResponseEntity.ok(reservationDTOList);
     }
 
@@ -103,8 +100,9 @@ public class ReservationController implements IReservationController{
 
         Client client = reservationService.getClientFromAuthentication(authentication);
 
-        reservationService.cancelReservation(id, client);
-        return ResponseEntity.ok().build();
+        ReservationDTO cancelledReservation = reservationService.cancelReservation(id, client);
+        return ResponseEntity.status(HttpStatus.OK).body(new GenericApiResponseDTO(true, "Reservation cancelled successfully", cancelledReservation));
+
     }
 
     @PatchMapping("/moderator/reservation/{reservationId}/updateStatus")

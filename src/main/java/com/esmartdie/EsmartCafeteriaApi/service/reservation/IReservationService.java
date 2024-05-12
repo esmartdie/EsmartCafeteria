@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IReservationService {
-    Reservation createReservation(NewReservationDTO reservationDTO);
+    ReservationDTO createReservation(NewReservationDTO reservationDTO);
 
     List<ReservationDTO> getReservationsByClient(Client client);
 
@@ -26,7 +26,7 @@ public interface IReservationService {
     List<ReservationDTO> getAllReservationsForDayAndShift(LocalDate date, Shift shift);
 
 
-    Reservation cancelReservation(Long reservationId, Client client);
+    ReservationDTO cancelReservation(Long reservationId, Client client);
 
 
     ReservationDTO updateReservationStatus(Long reservationId, ReservationStatusUpdatedDTO reservationDTO);

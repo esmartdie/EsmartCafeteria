@@ -1,6 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
-import com.esmartdie.EsmartCafeteriaApi.dto.CalendarCreationResponseDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.YearMonthDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
@@ -36,16 +36,15 @@ public class ReservationRecordController implements IReservationRecordController
     @PostMapping("/create_month")
     @ResponseStatus(HttpStatus.CREATED)
     @Override
-    public ResponseEntity<CalendarCreationResponseDTO> createCalendar(@RequestBody YearMonthDTO yearMonthDTO) {
+    public ResponseEntity<?> createCalendar(@RequestBody YearMonthDTO yearMonthDTO) {
         YearMonth yearMonth = yearMonthDTO.getYearMonth();
 
         List<ReservationRecord> openCalendar =  reservationRecordService.createMonthCalendar(yearMonth);
 
-        CalendarCreationResponseDTO response = new CalendarCreationResponseDTO(
-                yearMonth.toString(),
-                openCalendar.size()
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(
+                true,
+                "Calendar created successfully for the period  " + yearMonth.toString() + ", with a size of " + openCalendar.size() + " new registers created.",
+                openCalendar));
     };
 
 }

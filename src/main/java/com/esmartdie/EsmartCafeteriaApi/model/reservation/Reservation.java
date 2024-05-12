@@ -40,9 +40,10 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
 
-    public Reservation(Client client, Integer dinners, LocalDate reservationDate, Shift shift) {
+    public Reservation(Client client, Integer dinners, ReservationRecord record, LocalDate reservationDate, Shift shift) {
         this.client = client;
         this.dinners=dinners;
+        this.record=record;
         this.reservationDate = reservationDate;
         this.shift = shift;
         this.reservationStatus = ReservationStatus.PENDING;

@@ -65,7 +65,7 @@ public class ReservationRecordService implements IReservationRecordService{
         LocalDate firstDay = yearMonth.atDay(1);
         LocalDate lastDay = yearMonth.atEndOfMonth();
         YearMonth currentYearMonth = YearMonth.now();
-        YearMonth maxYearMonth = currentYearMonth.plusMonths(2);
+        YearMonth maxYearMonth = currentYearMonth.plusMonths(3);
 
         List<ReservationRecord> existingCalendar  =
                 reservationRecordRepository.findAllByReservationDateBetween(firstDay, lastDay);

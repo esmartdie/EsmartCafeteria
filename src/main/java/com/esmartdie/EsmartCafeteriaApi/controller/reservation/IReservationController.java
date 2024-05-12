@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface IReservationController {
 
-    ResponseEntity<String> createReservation(@RequestBody NewReservationDTO request);
+    ResponseEntity<?> createReservation(@RequestBody NewReservationDTO request);
 
     ResponseEntity<List<ReservationDTO>> getMyReservations(Authentication authentication);
 

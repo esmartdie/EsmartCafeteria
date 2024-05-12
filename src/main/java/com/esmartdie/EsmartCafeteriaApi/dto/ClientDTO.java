@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class ClientDTO {
+    private Long id;
     private String name;
     private String lastName;
     private String email;
@@ -19,7 +20,8 @@ public class ClientDTO {
     public ClientDTO() {
     }
 
-    public ClientDTO(String name, String lastName, String email, Boolean active) {
+    public ClientDTO(Long id, String name, String lastName, String email, Boolean active) {
+        this.id = id;
         this.name=name;
         this.lastName=lastName;
         this.email=email;
