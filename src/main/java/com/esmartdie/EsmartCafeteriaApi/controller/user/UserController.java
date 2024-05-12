@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
@@ -41,7 +42,7 @@ public class UserController implements IUserController{
 
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<String> createClient(@Valid @RequestBody NewClientDTO clientDTO) {
         Client client = userService.createClientFromDTO(clientDTO);
         userService.saveUser(client);
         return ResponseEntity.status(HttpStatus.CREATED).body("The user was created successfully");

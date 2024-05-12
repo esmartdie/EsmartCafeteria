@@ -1,5 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.MyReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
@@ -10,12 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,25 +29,10 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+
     @PostMapping("/users/clients/reservation/create")
-    public ResponseEntity<String> createReservation(@RequestBody Reservation request) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated.");
-        }
-
-        boolean hasPermission = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
-
-        if (!hasPermission) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to create reservations.");
-        }
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<String> createReservation(@RequestBody NewReservationDTO request) {
         try {
             reservationService.createReservation(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("Reservation created successfully.");
@@ -53,32 +41,38 @@ public class ReservationController {
         }
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+
 
     @GetMapping("/users/clients/reservation/my-reservations")
-    public ResponseEntity<List<Reservation>> getMyReservations(Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<List<Reservation>> optionalReservationList = reservationService.getReservationsByClient(client);
+    public ResponseEntity<List<MyReservationDTO>> getMyReservations(Authentication authentication) {
 
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Client client = reservationService.getClientFromAuthentication(authentication);
+
+        try {
+            List<MyReservationDTO> reservations = reservationService.getReservationsByClient(client);
+            if (reservations.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/users/clients/reservation/my-active-reservations")
-    public ResponseEntity<List<Reservation>> getMyActiveReservation(Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<List<Reservation>> optionalReservationList =  reservationService.getAcceptedReservationsByClient(client);
+    public ResponseEntity<List<MyReservationDTO>> getMyActiveReservation(Authentication authentication) {
+        Client client = reservationService.getClientFromAuthentication(authentication);
 
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            List<MyReservationDTO> reservations = reservationService.getAcceptedReservationsByClient(client);
+            if (reservations.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**

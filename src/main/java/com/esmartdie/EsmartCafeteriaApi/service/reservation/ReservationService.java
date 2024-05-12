@@ -1,17 +1,23 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.MyReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.exception.*;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +25,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +38,14 @@ public class ReservationService implements IReservationService{
     @Autowired
     private IReservationRecordRepository reservationRecordRepository;
 
+    @Autowired
+    private IUserRepository userRepository;
+
 
     @Override
-    public Reservation createReservation(Reservation reservation) {
+    public Reservation createReservation(NewReservationDTO reservationDTO) {
+
+        Reservation reservation = createReservationFromDTO(reservationDTO);
 
         isReservationPossible(reservation);
 
@@ -59,6 +71,15 @@ public class ReservationService implements IReservationService{
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
         return savedReservation;
+    }
+
+    private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
+
+        return new Reservation(
+                reservationDTO.getClient(),
+                reservationDTO.getDinners(),
+                reservationDTO.getReservationDate(),
+                reservationDTO.getShift());
     }
 
     private void isReservationPossible(Reservation reservation){
@@ -144,13 +165,64 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public Optional<List<Reservation>> getReservationsByClient(Client client) {
-        return reservationRepository.findAllByClient(client);
+    public List<MyReservationDTO> getReservationsByClient(Client client) {
+        List <Reservation> reservations = reservationRepository.findAllByClient(client);
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
     }
 
+    private MyReservationDTO convertToReservationDTO(Reservation reservation) {
+        MyReservationDTO dto = new MyReservationDTO();
+        dto.setId(reservation.getId());
+        dto.setDinners(reservation.getDinners());
+        dto.setReservationDate(reservation.getReservationDate());
+        dto.setShift(reservation.getShift());
+        dto.setReservationStatus(reservation.getReservationStatus());
+
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setName(reservation.getClient().getName());
+        clientDTO.setLastName(reservation.getClient().getLastName());
+        clientDTO.setEmail(reservation.getClient().getEmail());
+        clientDTO.setActive(reservation.getClient().getActive());
+        clientDTO.setRating(reservation.getClient().getRating());
+
+        dto.setClientDTO(clientDTO);
+        return dto;
+    }
+
+    public Client getClientFromAuthentication(Authentication authentication){
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new CustomAuthenticationException("User not authenticated.");
+        }
+        Object principal = authentication.getPrincipal();
+
+        String email;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            email = (String) principal;
+        } else {
+            throw new CustomAuthenticationException("The authentication principal is not recognized.");
+        }
+
+        if (email == null) {
+            throw new CustomAuthenticationException ("User email is not available.");
+        }
+
+        Optional<User> clientOptional = userRepository.findByEmail(email);
+        return (Client)clientOptional.orElseThrow(() -> new ClientNotFoundException("Client not found with email: " + email));
+    }
+
+
     @Override
-    public Optional<List<Reservation>> getAcceptedReservationsByClient(Client client) {
-        return reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+    public List<MyReservationDTO> getAcceptedReservationsByClient(Client client) {
+        List <Reservation> reservations = reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

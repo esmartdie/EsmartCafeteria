@@ -1,10 +1,12 @@
 package com.esmartdie.EsmartCafeteriaApi.controller;
 
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
+import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.nio.file.AccessDeniedException;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -78,5 +81,21 @@ public class GlobalExceptionHandler {
         errorDetails.put("details", ex.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ReservationException.class)
+    public ResponseEntity<String> handleReservationException(ReservationException e) {
+        return ResponseEntity.badRequest().body("Failed to create reservation: " + e.getMessage());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated.");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDeniedException() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to create reservations.");
+    }
+
 
 }

@@ -10,7 +10,6 @@ public class ClientDTO {
     private String name;
     private String lastName;
     private String email;
-    private String password;
     @Min(value = 1, message = "Rating must be greater than or equal to 1")
     @Max(value = 10, message = "Rating must be less than or equal to 10")
     @Digits(integer = 2, fraction = 2, message = "Rating must not contain more than two decimal places")
@@ -18,6 +17,14 @@ public class ClientDTO {
     private boolean active;
 
     public ClientDTO() {
+    }
+
+    public ClientDTO(String name, String lastName, String email, Boolean active) {
+        this.name=name;
+        this.lastName=lastName;
+        this.email=email;
+        this.active=active;
+        setRating(5);
     }
 
     public ClientDTO(String name, String lastName, String email, Boolean active, double rating) {

@@ -3,6 +3,7 @@ package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
@@ -75,7 +76,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Client createClientFromDTO(ClientDTO clientDTO) {
+    public Client createClientFromDTO(NewClientDTO clientDTO) {
 
         checkEmailAvailability(clientDTO.getEmail());
 

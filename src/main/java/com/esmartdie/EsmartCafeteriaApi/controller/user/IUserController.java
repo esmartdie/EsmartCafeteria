@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
@@ -18,7 +19,7 @@ public interface IUserController {
     //List<User> getUsers();
    //void saveUser(User user);
 
-    ResponseEntity<String> createClient(@Valid @RequestBody ClientDTO clientDTO);
+    ResponseEntity<String> createClient(@Valid @RequestBody NewClientDTO clientDTO);
 
     ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO);
 

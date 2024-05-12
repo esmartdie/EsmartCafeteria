@@ -1,5 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.MyReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
@@ -10,11 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IReservationService {
-    Reservation createReservation(Reservation reservation);
+    Reservation createReservation(NewReservationDTO reservationDTO);
 
-    Optional<List<Reservation>> getReservationsByClient(Client client);
+    List<MyReservationDTO> getReservationsByClient(Client client);
 
-    Optional<List<Reservation>> getAcceptedReservationsByClient(Client client);
+    List<MyReservationDTO> getAcceptedReservationsByClient(Client client);
 
     Optional<Reservation> getReservationById(Long id);
 
