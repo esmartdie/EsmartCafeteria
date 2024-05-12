@@ -99,6 +99,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-
+    @ExceptionHandler(SessionActiveNotFoundException.class)
+    public ResponseEntity<String> handleSessionActiveNotFound(SessionActiveNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
 }

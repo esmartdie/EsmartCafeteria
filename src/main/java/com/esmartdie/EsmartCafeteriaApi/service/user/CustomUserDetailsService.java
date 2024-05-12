@@ -1,5 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
+import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private IUserRepository userRepository;
 
+    @Autowired IUserLogsService userLogsService;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -35,6 +38,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
+
+        UserLogs log = userLogsService.createUserLoginLog(user.getEmail());
 
         return new User(
                 user.getEmail(),

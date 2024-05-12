@@ -1,6 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi;
 
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
@@ -52,6 +53,7 @@ public class DemoDataLoader {
         createUsers();
         openCalendar();
         createReservations();
+        calculateEmptySpaces();
     }
 
     LocalDate today = LocalDate.now();
@@ -96,16 +98,16 @@ public class DemoDataLoader {
                         yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
                 new Reservation (null, client1, 4,
                         reservationRecordRepository.findByReservationDateAndShift(yesterday,Shift.DAY4).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.DAY4, ReservationStatus.ACCEPTED),
                 new Reservation (null, client1, 4,
                         reservationRecordRepository.findByReservationDateAndShift(yesterday,Shift.NIGHT1).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.NIGHT1, ReservationStatus.ACCEPTED),
                 new Reservation (null, client1, 4,
                         reservationRecordRepository.findByReservationDateAndShift(today,Shift.NIGHT1).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.NIGHT1, ReservationStatus.ACCEPTED),
                 new Reservation (null, client1, 4,
                         reservationRecordRepository.findByReservationDateAndShift(tomorrow,Shift.NIGHT4).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED)
+                        yesterday,Shift.NIGHT4, ReservationStatus.ACCEPTED)
         );
         reservationRepository.saveAll(reservationList1);
 
@@ -117,19 +119,44 @@ public class DemoDataLoader {
                         yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
                 new Reservation (null, client2, 4,
                         reservationRecordRepository.findByReservationDateAndShift(yesterday,Shift.DAY4).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.DAY4, ReservationStatus.ACCEPTED),
                 new Reservation (null, client2, 4,
                         reservationRecordRepository.findByReservationDateAndShift(yesterday,Shift.NIGHT1).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.NIGHT1, ReservationStatus.ACCEPTED),
                 new Reservation (null, client2, 4,
                         reservationRecordRepository.findByReservationDateAndShift(today,Shift.NIGHT1).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED),
+                        yesterday,Shift.NIGHT1, ReservationStatus.ACCEPTED),
                 new Reservation (null, client2, 4,
                         reservationRecordRepository.findByReservationDateAndShift(tomorrow,Shift.NIGHT4).get(),
-                        yesterday,Shift.DAY2, ReservationStatus.ACCEPTED)
+                        yesterday,Shift.NIGHT4, ReservationStatus.ACCEPTED)
         );
         reservationRepository.saveAll(reservationList2);
 
     }
+
+    private void calculateEmptySpaces() {
+        updateEmptySpacesForRecord(yesterday, Shift.DAY2);
+        updateEmptySpacesForRecord(yesterday, Shift.DAY4);
+        updateEmptySpacesForRecord(yesterday, Shift.NIGHT1);
+        updateEmptySpacesForRecord(today, Shift.NIGHT1);
+        updateEmptySpacesForRecord(tomorrow, Shift.NIGHT4);
+    }
+
+    private void updateEmptySpacesForRecord(LocalDate date, Shift shift) {
+        ReservationRecord reservationRecord = reservationRecordRepository.findByReservationDateAndShift(date, shift)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation Record not found for date: " + date + " and shift: " + shift));
+
+        List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(date, shift);
+
+        int totalDinners = reservations.stream()
+                .mapToInt(Reservation::getDinners)
+                .sum();
+
+        int emptySpaces = reservationRecord.getMAX_CLIENTS() - totalDinners;
+        reservationRecord.setEmptySpaces(Math.max(0, emptySpaces)); // Ensure we do not set negative empty spaces.
+
+        reservationRecordRepository.save(reservationRecord);
+    }
+
 
 }

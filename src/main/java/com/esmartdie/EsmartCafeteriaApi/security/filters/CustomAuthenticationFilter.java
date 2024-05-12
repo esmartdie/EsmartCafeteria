@@ -3,7 +3,10 @@ package com.esmartdie.EsmartCafeteriaApi.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
+import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserLogsService;
+import com.esmartdie.EsmartCafeteriaApi.service.user.UserLogsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 
 import java.io.IOException;
@@ -35,13 +39,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     private final AuthenticationManager authenticationManager;
 
 
-    @Autowired
-    private IUserLogsService userLogsService;
-
     public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
-
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -51,15 +51,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         log.info("Password is: {}", password);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-
-        /*Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        User user = (User) authentication.getPrincipal();
-
-        if (!user.getActive()) {
-            throw new DisabledException("User account is not active");
-        }
-
-         */
 
         return authenticationManager.authenticate(authenticationToken);
     }
@@ -84,6 +75,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         tokens.put("access_token", access_token);
 
         response.setContentType(APPLICATION_JSON_VALUE);
+
+        String email = user.getUsername();
+
+//        UserLogs log= userLogsService.createUserLoginLog(email);
 
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
