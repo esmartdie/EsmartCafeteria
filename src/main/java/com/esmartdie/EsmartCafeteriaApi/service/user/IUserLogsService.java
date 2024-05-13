@@ -6,6 +6,5 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
 public interface IUserLogsService {
 
     UserLogs createUserLoginLog(String email);
-
     void createUserLogoutLog(User user);
 }

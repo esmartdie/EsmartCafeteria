@@ -5,6 +5,7 @@ import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,6 +15,8 @@ public interface IReservationService {
     ReservationDTO createReservation(NewReservationDTO reservationDTO);
 
     List<ReservationDTO> getReservationsByClient(Client client);
+
+    Client getClientFromAuthentication(Authentication authentication);
 
     List<ReservationDTO> getAcceptedReservationsByClient(Client client);
 

@@ -67,18 +67,4 @@ public class EmployeeService implements IEmployeeService{
         userRepository.save(employee);
     }
 
-
-    /*
-    @Override
-    public void deleteEmployee(Long employeeId) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            employeeRepository.delete(employee);
-        } else {
-            throw new ResourceNotFoundException("Employee not found with id: " + employeeId);
-        }
-    }
-
-     */
 }

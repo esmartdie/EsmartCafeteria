@@ -16,6 +16,5 @@ public interface IClientService {
 
     Map<String, String> updateClientsStatus(List<ClientDTO> clientDTOS, boolean isActive);
 
-
     Client updateClientRating(Long clientId, ClientDTO clientDTO);
 }

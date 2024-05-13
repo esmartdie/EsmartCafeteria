@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface IUserController {
 
-    //List<User> getUsers();
-   //void saveUser(User user);
 
     ResponseEntity<?> createClient(@Valid @RequestBody NewClientDTO clientDTO);
 

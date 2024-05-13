@@ -15,7 +15,6 @@ public class EmployeeController implements IEmployeeController{
 
     @Autowired
     private IEmployeeService employeeService;
-
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
@@ -23,7 +22,6 @@ public class EmployeeController implements IEmployeeController{
         List<EmployeeDTO> activeEmployees = employeeService.getActiveEmployees();
         return ResponseEntity.ok(activeEmployees);
     }
-
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
@@ -31,7 +29,6 @@ public class EmployeeController implements IEmployeeController{
         List<EmployeeDTO> inactiveEmployees = employeeService.getInactiveEmployees();
         return ResponseEntity.ok(inactiveEmployees);
     }
-
     @PatchMapping("/{employeeId}/updateStatus")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
@@ -39,6 +36,5 @@ public class EmployeeController implements IEmployeeController{
 
         employeeService.updateEmployeeStatus(employeeId, isActive);
     }
-
 
 }

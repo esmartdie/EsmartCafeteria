@@ -10,29 +10,16 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 
 public interface IUserService {
 
-
     <T extends User> T saveUser(T user);
-
 
     ClientDTO createClientFromDTO(NewClientDTO clientDTO);
 
     EmployeeDTO createEmployeeFromDTO(EmployeeDTO employeeDTO);
-
-    // List<User> getUsers();
 
     Client getClientById(Long id);
 
     Employee getEmployeeById(Long id);
 
     ClientDTO updateClientFromDTO(Long id, UpdateClientDTO clientDTO);
-
-
-    //Optional<User> getUserByEmail(String email);
-
-
-  //  User getUserById(Long id);
-
-
-
 
 }

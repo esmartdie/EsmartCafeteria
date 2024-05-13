@@ -18,23 +18,6 @@ public class UserController implements IUserController{
     @Autowired
     private IUserService userService;
 
-    /*
-    @Override
-    @GetMapping("/users")
-    @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers() {
-        return userService.getUsers();
-    }
-
-    @Override
-    @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void saveUser(@RequestBody User user) {
-        userService.saveUser(user);
-    }
-
-     */
-
     @Override
     @PostMapping("/signup")
     public ResponseEntity<?> createClient(@Valid @RequestBody NewClientDTO clientDTO) {

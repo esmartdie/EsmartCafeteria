@@ -85,7 +85,6 @@ public class ClientService implements IClientService{
         return results;
     }
 
-
     @Override
     public Client updateClientRating(Long clientId, ClientDTO clientDTO ){
 
@@ -99,6 +98,5 @@ public class ClientService implements IClientService{
         return client;
 
     }
-
 
 }

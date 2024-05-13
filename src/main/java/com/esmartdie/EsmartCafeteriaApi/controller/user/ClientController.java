@@ -46,7 +46,6 @@ public class ClientController implements IClientController{
         clientService.updateClientStatus(clientId, isActive);
     }
 
-
     @PutMapping("/updateMassiveStatus")
     @Override
     public ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,

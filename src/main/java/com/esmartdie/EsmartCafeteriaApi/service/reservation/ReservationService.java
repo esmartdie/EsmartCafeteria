@@ -58,17 +58,6 @@ public class ReservationService implements IReservationService{
 
         reservation.setReservationStatus(ReservationStatus.ACCEPTED);
         Reservation savedReservation = reservationRepository.save(reservation);
-/*
-        ReservationRecord reservationRecord = findOrCreateReservationRecord(reservation.getReservationDate(), reservation.getShift());
-
-        if (reservationRecord.getReservationList() == null) {
-            reservationRecord.setReservationList(new ArrayList<>());
-        }
-
-        reservationRecord.getReservationList().add(savedReservation);
-        reservationRecordRepository.save(reservationRecord);
-
- */
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
 
@@ -141,23 +130,6 @@ public class ReservationService implements IReservationService{
 
     }
 
-
-/*
-    private ReservationRecord findOrCreateReservationRecord(LocalDate reservationDate, Shift shift) {
-        Optional<ReservationRecord> optionalReservationRecord = reservationRecordRepository.findByReservationDateAndShift(reservationDate, shift);
-        if (optionalReservationRecord.isPresent()) {
-            return optionalReservationRecord.get();
-        } else {
-            ReservationRecord reservationRecord = new ReservationRecord();
-            reservationRecord.setShift(shift);
-            reservationRecord.setReservationDate(reservationDate);
-            reservationRecordRepository.save(reservationRecord);
-            return reservationRecord;
-        }
-    }
-
- */
-
     private void recalculateTotalDinners(LocalDate reservationDate, Shift shift) {
 
         ReservationRecord reservationRecord = reservationRecordRepository
@@ -204,6 +176,7 @@ public class ReservationService implements IReservationService{
         return dto;
     }
 
+    @Override
     public Client getClientFromAuthentication(Authentication authentication){
 
         if (authentication == null || authentication.getPrincipal() == null) {

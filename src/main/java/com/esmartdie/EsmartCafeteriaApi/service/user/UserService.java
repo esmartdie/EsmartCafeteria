@@ -33,32 +33,6 @@ public class UserService implements IUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-/*
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        if (!user.getActive()) {
-            throw new UsernameNotFoundException("User with email " + email + " is not active");
-        }
-
-        if (user == null) {
-            log.error("User not found in the database");
-            throw new UsernameNotFoundException("User not found in the database");
-        } else {
-            log.info("User found in the database: {}", email);
-
-            GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getName());
-
-            return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
-        }
-    }
-
- */
 
     @Override
     public <T extends User> T saveUser(T user) {
@@ -129,16 +103,6 @@ public class UserService implements IUserService {
         }
     }
 
-    /*
-    @Override
-    public User getUserById(Long id) {
-        log.info("Fetching user {}", id);
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-    }
-
-     */
-
     @Override
     public Client getClientById(Long id) {
         User user = userRepository.findById(id)
@@ -196,20 +160,6 @@ public class UserService implements IUserService {
                 .map(user -> !user.getId().equals(id))
                 .orElse(false);
     }
-/*
-    @Override
-    public Optional<User> getUserByEmail(String email) {
-        log.info("Fetching user {}", email);
-        return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public List<User> getUsers() {
-        log.info("Fetching all users");
-        return userRepository.findAll();
-    }
-
- */
 
 
 }
