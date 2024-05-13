@@ -17,8 +17,8 @@ class ReservationRecordTest {
         ReservationRecord reservationRecord = new ReservationRecord();
         assertEquals(null, reservationRecord.getId());
         assertEquals(40, reservationRecord.getMAX_CLIENTS());
-        assertEquals(null, reservationRecord.getEmptySpaces());
-        assertEquals(null, reservationRecord.getReservationList());
+        assertEquals(40, reservationRecord.getEmptySpaces());
+        assertEquals(new ArrayList<>(), reservationRecord.getReservationList());
         assertEquals(null, reservationRecord.getReservationDate());
         assertEquals(null, reservationRecord.getShift());
     }

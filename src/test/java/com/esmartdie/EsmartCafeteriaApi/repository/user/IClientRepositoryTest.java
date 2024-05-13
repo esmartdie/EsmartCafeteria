@@ -55,18 +55,14 @@ class IClientRepositoryTest {
 
     @Test
     void testFindAllActive() {
-        Optional<List<Client>> clientsOptional = clientRepository.findAllActive();
-        assertTrue(clientsOptional.isPresent());
-        List<Client> clients = clientsOptional.get();
+        List<Client> clients = clientRepository.findAllActive();
         assertEquals(1, clients.size());
         assertTrue(clients.get(0).getActive());
     }
 
     @Test
     void testFindAllInactive() {
-        Optional<List<Client>> clientsOptional = clientRepository.findAllInactive();
-        assertTrue(clientsOptional.isPresent());
-        List<Client> clients = clientsOptional.get();
+        List<Client> clients = clientRepository.findAllInactive();
         assertEquals(0, clients.size());
     }
 

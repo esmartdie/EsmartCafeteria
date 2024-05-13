@@ -13,9 +13,4 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     Optional <User> findById(Long id);
     boolean existsByEmail(String email);
 
-    default boolean existsByEmailAndIdNot(String email, Long id) {
-        return findByEmail(email)
-                .map(user -> !user.getId().equals(id))
-                .orElse(false);
-    }
 }

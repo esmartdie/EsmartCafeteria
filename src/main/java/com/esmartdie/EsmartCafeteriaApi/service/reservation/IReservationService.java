@@ -1,5 +1,8 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
@@ -10,23 +13,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IReservationService {
-    Reservation createReservation(Reservation reservation);
+    ReservationDTO createReservation(NewReservationDTO reservationDTO);
 
-    Optional<List<Reservation>> getReservationsByClient(Client client);
+    List<ReservationDTO> getReservationsByClient(Client client);
 
-    Optional<List<Reservation>> getAcceptedReservationsByClient(Client client);
+    List<ReservationDTO> getAcceptedReservationsByClient(Client client);
 
-    Optional<Reservation> getReservationById(Long id);
+    ReservationDTO getReservationById(Long id);
 
-    Optional<List<Reservation>> getAllReservationsForDay(LocalDate date);
+    List<ReservationDTO> getAllReservationsForDay(LocalDate date);
 
-    Optional<List<Reservation>>getAllReservationsForDayAndShift(LocalDate date, Shift shift);
+    List<ReservationDTO> getAllReservationsForDayAndShift(LocalDate date, Shift shift);
 
-    Reservation cancelReservation(Long reservationId);
 
-    Reservation confirmReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime);
+    ReservationDTO cancelReservation(Long reservationId, Client client);
 
-    Reservation lostReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime);
 
-    void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
+    ReservationDTO updateReservationStatus(Long reservationId, ReservationStatusUpdatedDTO reservationDTO);
+
+    List<ReservationDTO>  updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
 }

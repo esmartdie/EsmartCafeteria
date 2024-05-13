@@ -30,7 +30,7 @@ public class ReservationTest {
         LocalDate reservationDate = LocalDate.of(2024, 5, 11);;
         Shift shift = Shift.DAY1;
 
-        Reservation reservation = new Reservation(client, dinners, reservationDate, shift);
+        Reservation reservation = new Reservation(null, client, dinners, new ReservationRecord(), reservationDate, shift, ReservationStatus.ACCEPTED);
         assertEquals(null, reservation.getId());
         assertEquals(client, reservation.getClient());
         assertEquals(dinners, reservation.getDinners());

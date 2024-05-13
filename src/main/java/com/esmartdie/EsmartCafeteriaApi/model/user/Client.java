@@ -30,6 +30,4 @@ public class Client extends User{
         setRating(5.0);
     }
 
-
-
 }

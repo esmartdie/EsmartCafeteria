@@ -2,6 +2,8 @@ package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserLogsRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserLogsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,44 +20,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/logout")
-public class LogoutController {
+@RequestMapping("/api")
+public class LogoutController{
 
     @Autowired
     private IUserLogsService userLogsService;
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+    @Autowired
+    private IUserRepository userRepository;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            User user = (User) auth.getPrincipal();
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(Authentication authentication) {
+        if (authentication != null) {
+            User user = userRepository.findByEmail(String.valueOf(authentication.getPrincipal())).get();
             userLogsService.createUserLogoutLog(user);
+            SecurityContextHolder.clearContext();
+            return ResponseEntity.ok().body("User logged out successfully.");
         }
-
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("access_token")) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                    break;
-                }
-            }
-        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No authenticated user to log out.");
     }
 }

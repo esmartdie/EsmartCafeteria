@@ -1,17 +1,24 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
+import com.esmartdie.EsmartCafeteriaApi.exception.*;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +26,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +39,14 @@ public class ReservationService implements IReservationService{
     @Autowired
     private IReservationRecordRepository reservationRecordRepository;
 
+    @Autowired
+    private IUserRepository userRepository;
+
 
     @Override
-    public Reservation createReservation(Reservation reservation) {
+    public ReservationDTO createReservation(NewReservationDTO reservationDTO) {
+
+        Reservation reservation = createReservationFromDTO(reservationDTO);
 
         isReservationPossible(reservation);
 
@@ -58,7 +71,27 @@ public class ReservationService implements IReservationService{
  */
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
-        return savedReservation;
+
+        return convertToReservationDTO(savedReservation);
+    }
+
+    private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
+
+        Client client = (Client)userRepository.findById(reservationDTO.getClient().getId()).orElseThrow(
+                ()->new ResourceNotFoundException("Client not found with id: " +reservationDTO.getClient().getId()));
+
+        ReservationRecord record = reservationRecordRepository.
+                findByReservationDateAndShift(reservationDTO.getReservationDate(), reservationDTO.getShift()).orElseThrow(
+                        ()->new IllegalCalendarException("Calendar not found with with date " +
+                                reservationDTO.getReservationDate()+ " and shift "+ reservationDTO.getShift()));
+
+
+        return new Reservation(
+                client,
+                reservationDTO.getDinners(),
+                record,
+                reservationDTO.getReservationDate(),
+                reservationDTO.getShift());
     }
 
     private void isReservationPossible(Reservation reservation){
@@ -129,8 +162,8 @@ public class ReservationService implements IReservationService{
 
         ReservationRecord reservationRecord = reservationRecordRepository
                 .findByReservationDateAndShift(reservationDate, shift)
-                .orElseThrow(() -> new ReservationNotFoundException("No reservations found for the specified date and shift"));
-        List<Reservation> reservations = reservationRecord.getReservationList();
+                .orElseThrow(() -> new IllegalCalendarException("No reservations found for the specified date and shift"));
+        List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(reservationDate, shift);
 
         int totalDinners = reservations.stream()
                 .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
@@ -144,128 +177,164 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public Optional<List<Reservation>> getReservationsByClient(Client client) {
-        return reservationRepository.findAllByClient(client);
+    public List<ReservationDTO> getReservationsByClient(Client client) {
+        List <Reservation> reservations = reservationRepository.findAllByClient(client);
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<List<Reservation>> getAcceptedReservationsByClient(Client client) {
-        return reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+    private ReservationDTO convertToReservationDTO(Reservation reservation) {
+        ReservationDTO dto = new ReservationDTO();
+        dto.setId(reservation.getId());
+        dto.setDinners(reservation.getDinners());
+        dto.setReservationDate(reservation.getReservationDate());
+        dto.setShift(reservation.getShift());
+        dto.setReservationStatus(reservation.getReservationStatus());
+
+
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setName(reservation.getClient().getName());
+        clientDTO.setLastName(reservation.getClient().getLastName());
+        clientDTO.setEmail(reservation.getClient().getEmail());
+        clientDTO.setActive(reservation.getClient().getActive());
+        clientDTO.setRating(reservation.getClient().getRating());
+
+        dto.setClientDTO(clientDTO);
+        return dto;
     }
 
-    @Override
-    public Optional<Reservation> getReservationById(Long id) {
-        return reservationRepository.findById(id);
-    }
+    public Client getClientFromAuthentication(Authentication authentication){
 
-    @Override
-    public Optional<List<Reservation>> getAllReservationsForDay(LocalDate date) {
-        return reservationRepository.findAllByReservationDate(date);
-    }
-
-    @Override
-    public Optional<List<Reservation>>getAllReservationsForDayAndShift(LocalDate date, Shift shift) {
-        return reservationRepository.findAllByReservationDateAndShift(date, shift);
-    }
-
-    @Override
-    public Reservation cancelReservation(Long reservationId) {
-        Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-
-            if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
-                throw new ReservationException("This reservation couldn't be canceled");
-            }
-
-            LocalDate today = LocalDate.now();
-            LocalDate reservationDate = reservation.getReservationDate();
-            Shift shift = reservation.getShift();
-
-            if (reservationDate.isEqual(today)) {
-                throw new ReservationException("Cannot cancel a reservation on the same day.");
-            } else if (reservationDate.isBefore(today)) {
-                throw new ReservationException("Couldn't canceled expired reservations.");
-            }
-
-            reservation.setReservationStatus(ReservationStatus.CANCELED);
-            reservationRepository.save(reservation);
-            recalculateTotalDinners(reservationDate,shift);
-            return reservation;
-        } else {
-            throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new CustomAuthenticationException("User not authenticated.");
         }
-    }
+        Object principal = authentication.getPrincipal();
 
-    @Override
-    public Reservation confirmReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
-        LocalDate today = LocalDate.now();
-        Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
-
-        if (optionalReservation.isPresent()) {
-
-            Reservation reservation = optionalReservation.get();
-
-            if (actionDate.equals(today)&&actionDate.equals(reservation.getReservationDate())) {
-                List<Shift> allowedShifts = getAllowedShifts(currentTime);
-
-                for (Shift shift : allowedShifts) {
-
-                    if(reservation.getShift().equals(shift)){
-
-                        if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
-                            throw new ReservationException("This reservation couldn't updated to confirmed");
-                        }
-                        reservation.setReservationStatus(ReservationStatus.CONFIRMED);
-                        return reservationRepository.save(reservation);
-                    }
-
-                }
-            }else {
-                throw new IllegalArgumentException("Reservations can only be updated to 'CONFIRMED' if the action is performed on the same day.");
-            }
+        String email;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            email = (String) principal;
         } else {
-            throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
+            throw new CustomAuthenticationException("The authentication principal is not recognized.");
         }
-        return null;
+
+        if (email == null) {
+            throw new CustomAuthenticationException ("User email is not available.");
+        }
+
+        Optional<User> clientOptional = userRepository.findByEmail(email);
+        return (Client)clientOptional.orElseThrow(() -> new ClientNotFoundException("Client not found with email: " + email));
+    }
+
+
+    @Override
+    public List<ReservationDTO> getAcceptedReservationsByClient(Client client) {
+        List <Reservation> reservations = reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Reservation lostReservation(Long reservationId, LocalDate actionDate, LocalTime currentTime) {
-        LocalDate today = LocalDate.now();
+    public ReservationDTO getReservationById(Long id) throws ReservationNotFoundException {
 
-        Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
-        if (optionalReservation.isPresent()) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + id));
 
-            Reservation reservation = optionalReservation.get();
-
-            if (actionDate.equals(today)&&actionDate.equals(reservation.getReservationDate())) {
-                List<Shift> allowedShifts = getAllowedShifts(currentTime);
-
-                for (Shift shift : allowedShifts) {
-
-                    if(reservation.getShift().equals(shift)){
-
-                        if(!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)){
-                            throw new ReservationException("This reservation couldn't updated to LOST");
-                        }
-                        reservation.setReservationStatus(ReservationStatus.LOST);
-                        return reservationRepository.save(reservation);
-                    }
-
-                }
-            }else {
-                throw new IllegalArgumentException("Reservations can only be updated to 'LOSS' if the action is performed on the same day.");
-            }
-        } else {
-            throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
-        }
-        return null;
+        return convertToReservationDTO(reservation);
     }
 
     @Override
-    public void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
+    public List<ReservationDTO> getAllReservationsForDay(LocalDate date) {
+
+        List <Reservation> reservations =reservationRepository.findAllByReservationDate(date);
+
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReservationDTO> getAllReservationsForDayAndShift(LocalDate date, Shift shift) {
+
+        List <Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(date, shift);
+
+        return reservations.stream()
+                .map(this::convertToReservationDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReservationDTO cancelReservation(Long reservationId, Client client) throws ReservationNotFoundException, ReservationException {
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + reservationId));
+
+        if (!reservation.getClient().getId().equals(client.getId())) {
+            throw new ReservationException("You are not authorized to cancel this reservation.");
+        }
+
+        if (reservation.getReservationStatus() != ReservationStatus.ACCEPTED) {
+            throw new ReservationException("This reservation can't be canceled as it is not in an acceptable state.");
+        }
+
         LocalDate today = LocalDate.now();
+        if (reservation.getReservationDate().isEqual(today)) {
+            throw new ReservationException("Cannot cancel a reservation on the same day.");
+        }
+        if (reservation.getReservationDate().isBefore(today)) {
+            throw new ReservationException("Cannot cancel past reservations.");
+        }
+
+        reservation.setReservationStatus(ReservationStatus.CANCELED);
+        reservation = reservationRepository.save(reservation);
+        recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
+        return convertToReservationDTO(reservation);
+    }
+
+    @Override
+    public ReservationDTO updateReservationStatus(Long reservationId, ReservationStatusUpdatedDTO reservationDTO) {
+        LocalDate today = LocalDate.now();
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + reservationId));
+
+        if (!reservationDTO.getActionDate().equals(today) || !reservationDTO.getActionDate().equals(reservation.getReservationDate())) {
+            throw new IllegalArgumentException("Reservations can only be updated to 'CONFIRMED' on the same day of the reservation.");
+        }
+
+        List<Shift> allowedShifts = getAllowedShifts(reservationDTO.getCurrentTime());
+        if (!allowedShifts.contains(reservation.getShift())) {
+            throw new ReservationException("This reservation cannot be confirmed at the current time.");
+        }
+
+        if (!reservation.getReservationStatus().equals(ReservationStatus.ACCEPTED)) {
+            throw new ReservationException("Only accepted reservations can be confirmed.");
+        }
+
+        if(reservationDTO.getReservationStatus().equals(ReservationStatus.CONFIRMED)){
+            reservation.setReservationStatus(reservationDTO.getReservationStatus());
+        } else if (reservationDTO.getReservationStatus().equals(ReservationStatus.LOST)) {
+            reservation.setReservationStatus(reservationDTO.getReservationStatus());
+        }else{
+            throw new ReservationException("Reservations could only be updated to CONFIRMED or LOST status.");
+        }
+        reservationRepository.save(reservation);
+
+        return convertToReservationDTO(reservation);
+    }
+
+    @Override
+    public List<ReservationDTO>  updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
+        LocalDate today = LocalDate.now();
+
+        List<ReservationDTO> reservationDTOList = new ArrayList<>();
+
+        if (!actionDate.equals(today)) {
+            throw new IllegalArgumentException("Reservations can only be updated on the same day.");
+        }
+
         LocalTime actualTime = LocalTime.now();
 
         if(actualTime.isBefore(LocalTime.of(10,00))){
@@ -274,24 +343,17 @@ public class ReservationService implements IReservationService{
                 today=actionDate;
                 currentTime = LocalTime.of(23, 59);
             }
-        };
-
-        if (actionDate.equals(today)) {
-            List<Shift> allowedShifts = getAllowedShifts(currentTime);
-            for (Shift shift : allowedShifts) {
-                Optional<List<Reservation>> optionalReservations =
-                        reservationRepository.findAllByReservationDateAndShiftAndReservationStatus(actionDate, shift, ReservationStatus.ACCEPTED);
-                if (optionalReservations.isPresent()) {
-                    List<Reservation> reservations = optionalReservations.get();
-                    for (Reservation reservation : reservations) {
-                        reservation.setReservationStatus(ReservationStatus.LOST);
-                    }
-                    reservationRepository.saveAll(reservations);
-                }
-            }
-        } else {
-            throw new IllegalArgumentException("Reservations can only be updated to 'LOSS' if the action is performed on the same day.");
         }
+
+        List<Shift> allowedShifts = getAllowedShifts(currentTime);
+        for (Shift shift : allowedShifts) {
+            List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShiftAndReservationStatus(actionDate, shift, ReservationStatus.ACCEPTED);
+            reservations.forEach(reservation -> reservation.setReservationStatus(ReservationStatus.LOST));
+            reservationRepository.saveAll(reservations);
+            reservations.forEach(reservation->reservationDTOList.add(convertToReservationDTO(reservation)));
+        }
+
+        return reservationDTOList;
     }
 
 

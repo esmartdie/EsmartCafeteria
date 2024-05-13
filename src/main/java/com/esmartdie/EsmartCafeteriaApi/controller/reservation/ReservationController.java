@@ -1,204 +1,128 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
+import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationService;
 import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class ReservationController {
+public class ReservationController implements IReservationController{
 
     @Autowired
     private ReservationService reservationService;
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+
     @PostMapping("/users/clients/reservation/create")
-    public ResponseEntity<String> createReservation(@RequestBody Reservation request) {
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @Override
+    public ResponseEntity<?> createReservation(@RequestBody NewReservationDTO request) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated.");
-        }
-
-        boolean hasPermission = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
-
-        if (!hasPermission) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to create reservations.");
-        }
-        try {
-            reservationService.createReservation(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Reservation created successfully.");
-        } catch (ReservationException e) {
-            return ResponseEntity.badRequest().body("Failed to create reservation: " + e.getMessage());
-        }
+        ReservationDTO reservation = reservationService.createReservation(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "Reservation created successfully", reservation));
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/users/clients/reservation/my-reservations")
-    public ResponseEntity<List<Reservation>> getMyReservations(Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<List<Reservation>> optionalReservationList = reservationService.getReservationsByClient(client);
+    @Override
+    public ResponseEntity<List<ReservationDTO>> getMyReservations(Authentication authentication) {
 
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Client client = reservationService.getClientFromAuthentication(authentication);
+
+        try {
+            List<ReservationDTO> reservations = reservationService.getReservationsByClient(client);
+            if (reservations.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/users/clients/reservation/my-active-reservations")
-    public ResponseEntity<List<Reservation>> getMyActiveReservation(Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<List<Reservation>> optionalReservationList =  reservationService.getAcceptedReservationsByClient(client);
+    @Override
+    public ResponseEntity<List<ReservationDTO>> getMyActiveReservation(Authentication authentication) {
+        Client client = reservationService.getClientFromAuthentication(authentication);
 
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            List<ReservationDTO> reservations = reservationService.getAcceptedReservationsByClient(client);
+            if (reservations.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/moderator/reservation/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Optional<Reservation> reservationOptional = reservationService.getReservationById(id);
-
-        return reservationOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @Override
+    public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
+        ReservationDTO reservationDTO = reservationService.getReservationById(id);
+        return ResponseEntity.ok(reservationDTO);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/moderator/reservation/day")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDay(@RequestParam LocalDate date) {
-        Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDay(date);
-
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @Override
+    public ResponseEntity<List<ReservationDTO>> getAllReservationsForDay(@RequestParam LocalDate date) {
+        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDay(date);
+        return ResponseEntity.ok(reservationDTOList);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @GetMapping("/moderator/reservation/day-shift")
-    public ResponseEntity<List<Reservation>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
-        Optional<List<Reservation>> optionalReservationList = reservationService.getAllReservationsForDayAndShift(date, shift);
-
-        return optionalReservationList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @Override
+    public ResponseEntity<List<ReservationDTO>> getAllReservationsForDayAndShift(@RequestParam LocalDate date, @RequestParam Shift shift) {
+        List<ReservationDTO> reservationDTOList = reservationService.getAllReservationsForDayAndShift(date,shift);
+        return ResponseEntity.ok(reservationDTOList);
     }
-
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
     @PutMapping("/users/clients/reservation/{id}/cancel")
+    @Override
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, Authentication authentication) {
-        Client client = (Client) authentication.getPrincipal();
-        Optional<Reservation> optionalReservation = reservationService.getReservationById(id);
 
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
-            if (!reservation.getClient().equals(client)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to cancel this reservation.");
-            }
+        Client client = reservationService.getClientFromAuthentication(authentication);
 
-            try {
-                reservationService.cancelReservation(id);
-                return ResponseEntity.ok("Reservation successfully canceled.");
-            } catch (ReservationException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }catch (ReservationNotFoundException e) {
-                return ResponseEntity.notFound().build();
-            }
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        ReservationDTO cancelledReservation = reservationService.cancelReservation(id, client);
+        return ResponseEntity.status(HttpStatus.OK).body(new GenericApiResponseDTO(true, "Reservation cancelled successfully", cancelledReservation));
+
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
+    @PatchMapping("/moderator/reservation/{reservationId}/updateStatus")
+    @Override
+    public ResponseEntity<?> updateReservationStatus(@PathVariable Long reservationId, @RequestBody ReservationStatusUpdatedDTO request) {
 
-    @PatchMapping("/moderator/reservation/{reservationId}/confirm")
-    public ResponseEntity<?> confirmReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
-                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            Reservation confirmedReservation = reservationService.confirmReservation(reservationId, actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
-        } catch (ReservationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        ReservationDTO updatedReservation = reservationService.updateReservationStatus(reservationId, request);
+        return ResponseEntity.ok(new GenericApiResponseDTO(true, "Reservation updated successfully", updatedReservation));
     }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
 
-    @PatchMapping("/moderator/reservation/{reservationId}/loss")
-    public ResponseEntity<?> lossReservation(@PathVariable Long reservationId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
-                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            Reservation confirmedReservation = reservationService.lostReservation(reservationId, actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(confirmedReservation);
-        } catch (ReservationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
-    /**
-     * TODO refactor and postman test
-     * @param id
-     * @return
-     */
-
-    @PutMapping("/moderator/reservation/updateLoss")
-    public ResponseEntity<?> updateReservationsToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
+    @PutMapping("/moderator/reservation/massiveReservationUpdatingToLoss")
+    @Override
+    public ResponseEntity<?> updateReservationsMassivelyToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            reservationService.updateReservationsToLoss(actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        List<ReservationDTO> reservationDTOList = reservationService.updateReservationsToLoss(actionDate, currentTime);
+        return ResponseEntity.ok(new GenericApiResponseDTO(true, "Reservation updated successfully", reservationDTOList));
+
     }
 
 

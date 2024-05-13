@@ -38,6 +38,7 @@ public class EmployeeService implements IEmployeeService{
         for(Employee employee : employees){
             EmployeeDTO employeeDTO;
             employeeDTO = new EmployeeDTO();
+            employeeDTO.setId(employee.getId());
             employeeDTO.setName(employee.getName());
             employeeDTO.setLastName(employee.getLastName());
             employeeDTO.setEmail(employee.getEmail());

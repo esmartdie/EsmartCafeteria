@@ -15,10 +15,10 @@ import java.util.Optional;
 public interface IReservationRepository extends JpaRepository<Reservation, Long> {
 
     Optional<Reservation> findById(Long id);
-    Optional<List<Reservation>> findAllByClient(Client client);
-    Optional<List<Reservation>> findAllByClientAndReservationStatus(Client client, ReservationStatus reservationStatus);
-    Optional<List<Reservation>> findAllByReservationDate(LocalDate date);
-    Optional<List<Reservation>> findAllByReservationDateAndShift(LocalDate date, Shift shift);
-    Optional<List<Reservation>> findAllByReservationDateAndShiftAndReservationStatus(LocalDate date, Shift shift, ReservationStatus reservationStatus);
+    List<Reservation> findAllByClient(Client client);
+    List<Reservation> findAllByClientAndReservationStatus(Client client, ReservationStatus reservationStatus);
+    List<Reservation> findAllByReservationDate(LocalDate date);
+    List<Reservation> findAllByReservationDateAndShift(LocalDate date, Shift shift);
+    List<Reservation> findAllByReservationDateAndShiftAndReservationStatus(LocalDate date, Shift shift, ReservationStatus reservationStatus);
     Optional<Reservation> findByClientAndReservationDateAndShift(Client client, LocalDate reservationDate, Shift shift);
 }

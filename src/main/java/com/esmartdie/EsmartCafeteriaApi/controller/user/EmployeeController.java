@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/employee")
 public class EmployeeController implements IEmployeeController{
 
     @Autowired
@@ -19,7 +19,7 @@ public class EmployeeController implements IEmployeeController{
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<EmployeeDTO>> getAllActive() {
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployeeActive() {
         List<EmployeeDTO> activeEmployees = employeeService.getActiveEmployees();
         return ResponseEntity.ok(activeEmployees);
     }
@@ -27,7 +27,7 @@ public class EmployeeController implements IEmployeeController{
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<EmployeeDTO>>  getAllInactive() {
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployeeInactive() {
         List<EmployeeDTO> inactiveEmployees = employeeService.getInactiveEmployees();
         return ResponseEntity.ok(inactiveEmployees);
     }

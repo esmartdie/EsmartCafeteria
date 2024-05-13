@@ -43,7 +43,7 @@ public class ClientService implements IClientService{
             clientDTO.setLastName(client.getLastName());
             clientDTO.setEmail(client.getEmail());
             clientDTO.setActive(client.getActive());
-
+            clientDTO.setRating(client.getRating());
             clientDTOList.add(clientDTO);
         }
 

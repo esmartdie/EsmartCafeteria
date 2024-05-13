@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static jakarta.persistence.FetchType.EAGER;
 
@@ -23,9 +24,11 @@ public class UserLogs {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private LocalDate sessionStart;
+    private LocalDate sessionStartDate;
 
-    private LocalDate sessionEnd;
+    private LocalTime sessionStartTime;
 
+    private LocalDate sessionEndDate;
 
+    private LocalTime sessionEndTime;
 }

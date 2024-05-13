@@ -24,17 +24,16 @@ public class ClientController implements IClientController{
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<ClientDTO>> getAllActive() {
+    public ResponseEntity<List<ClientDTO>> getAllClientsActive() {
         List<ClientDTO> activeClients = clientService.getActiveClients();
         return ResponseEntity.ok(activeClients);
 
     }
 
-
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<ClientDTO>> getAllInactive() {
+    public ResponseEntity<List<ClientDTO>> getAllClientsInactive() {
         List<ClientDTO>inactiveClient = clientService.getInactiveClients();
         return ResponseEntity.ok(inactiveClient);
     }
@@ -48,12 +47,12 @@ public class ClientController implements IClientController{
     }
 
 
-    @PatchMapping("/updateMassiveStatus")
+    @PutMapping("/updateMassiveStatus")
     @Override
     public ResponseEntity<Map<String, String>> updateClientsStatus(@RequestBody List<ClientDTO> clientDTOS,
                                    @RequestParam boolean isActive) {
         Map<String, String> updateResults = clientService.updateClientsStatus(clientDTOS, isActive);
-        return ResponseEntity.ok(updateResults);
+        return ResponseEntity.status(HttpStatus.CREATED).body(updateResults);
     }
 
 

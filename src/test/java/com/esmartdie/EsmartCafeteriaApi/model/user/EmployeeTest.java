@@ -14,7 +14,7 @@ class EmployeeTest {
         String email = "brucewayne@batman.com";
         String password = "password";
         Boolean active = true;
-        Role role = new Role(null, "ROLE_USER");
+        Role role = new Role(null, "ROLE_MODERATOR");
         Long employeeId = 12345L;
 
         Employee employee = new Employee(id, name, lastName, email, password, active, role, employeeId);

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.type.NumericBooleanConverter;
 
+import java.util.Objects;
+
 @Entity
 @Data
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -24,9 +26,8 @@ public class User {
     private String password;
     @Convert(converter = NumericBooleanConverter.class)
     private Boolean active;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
-
 
 }
