@@ -56,18 +56,14 @@ class IEmployeeRepositoryTest {
 
     @Test
     void testFindAllActive() {
-        Optional<List<Employee>> employeesOptional = employeeRepository.findAllActive();
-        assertTrue(employeesOptional.isPresent());
-        List<Employee> employees = employeesOptional.get();
+        List<Employee> employees = employeeRepository.findAllActive();
         assertEquals(1, employees.size());
         assertTrue(employees.get(0).getActive());
     }
 
     @Test
     void testFindAllInactive() {
-        Optional<List<Employee>> employeesOptional = employeeRepository.findAllInactive();
-        assertTrue(employeesOptional.isPresent());
-        List<Employee> employees = employeesOptional.get();
+        List<Employee> employees = employeeRepository.findAllInactive();
         assertEquals(0, employees.size());
     }
 

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +34,8 @@ class IUserLogsRepositoryTest {
 
         UserLogs userLogs = new UserLogs();
         userLogs.setUser(user);
-        userLogs.setSessionStart(LocalDate.now());
-        userLogs.setSessionEnd(null);
+        userLogs.setSessionStartDate(LocalDate.now());
+        userLogs.setSessionEndTime(null);
         userLogsRepository.save(userLogs);
     }
 
@@ -49,10 +50,10 @@ class IUserLogsRepositoryTest {
         User user = userRepository.findByEmail("johnW@theboogieman.com").orElse(null);
         assertNotNull(user);
 
-        UserLogs lastUserSession = userLogsRepository.findLastUserSession(user);
+        List<UserLogs> lastUserSession = userLogsRepository.findLastUserSession(user);
 
         assertNotNull(lastUserSession);
-        assertEquals(user, lastUserSession.getUser());
-        assertNull(lastUserSession.getSessionEnd());
+        assertEquals(user, lastUserSession.get(0).getUser());
+        assertNull(lastUserSession.get(0).getSessionEndDate());
     }
 }

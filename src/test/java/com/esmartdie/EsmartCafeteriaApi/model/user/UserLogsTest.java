@@ -3,6 +3,7 @@ package com.esmartdie.EsmartCafeteriaApi.model.user;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,14 +14,16 @@ class UserLogsTest {
         Long id = 1L;
         User user = new User();
         LocalDate sessionStart = LocalDate.of(2024, 4, 28);
+        LocalTime sessionTimeStart = LocalTime.now();
+        LocalTime sessionEndTime = LocalTime.now();
         LocalDate sessionEnd = LocalDate.of(2024, 4, 29);
 
-        UserLogs userLogs = new UserLogs(id, user, sessionStart, sessionEnd);
+        UserLogs userLogs = new UserLogs(id, user, sessionStart,sessionTimeStart, sessionEnd, sessionEndTime);
 
         assertEquals(id, userLogs.getId());
         assertEquals(user, userLogs.getUser());
-        assertEquals(sessionStart, userLogs.getSessionStart());
-        assertEquals(sessionEnd, userLogs.getSessionEnd());
+        assertEquals(sessionStart, userLogs.getSessionStartDate());
+        assertEquals(sessionEnd, userLogs.getSessionEndDate());
     }
 
     @Test
@@ -33,13 +36,13 @@ class UserLogsTest {
         Long id = 2L;
         userLogs.setId(id);
         userLogs.setUser(user);
-        userLogs.setSessionStart(sessionStart);
-        userLogs.setSessionEnd(sessionEnd);
+        userLogs.setSessionStartDate(sessionStart);
+        userLogs.setSessionEndDate(sessionEnd);
 
         assertEquals(id, userLogs.getId());
         assertEquals(user, userLogs.getUser());
-        assertEquals(sessionStart, userLogs.getSessionStart());
-        assertEquals(sessionEnd, userLogs.getSessionEnd());
+        assertEquals(sessionStart, userLogs.getSessionStartDate());
+        assertEquals(sessionEnd, userLogs.getSessionEndDate());
     }
 
 }

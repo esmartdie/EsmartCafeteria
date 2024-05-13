@@ -103,5 +103,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleSessionActiveNotFound(SessionActiveNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+    
+    @ExceptionHandler(IllegalCalendarException.class)
+    public ResponseEntity<String> handleIllegalCalendarException(IllegalCalendarException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
 }
