@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserTest {
+class   UserTest {
     private User user;
     private Role role;
 
