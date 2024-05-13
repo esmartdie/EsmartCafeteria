@@ -1,15 +1,12 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.GenericApiResponseDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationService;
-import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;

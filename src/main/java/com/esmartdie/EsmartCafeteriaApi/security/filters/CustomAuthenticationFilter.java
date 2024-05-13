@@ -2,31 +2,21 @@ package com.esmartdie.EsmartCafeteriaApi.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-
-import com.esmartdie.EsmartCafeteriaApi.model.user.UserLogs;
-import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
-import com.esmartdie.EsmartCafeteriaApi.service.user.IUserLogsService;
-import com.esmartdie.EsmartCafeteriaApi.service.user.UserLogsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
-
 
 import java.io.IOException;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;

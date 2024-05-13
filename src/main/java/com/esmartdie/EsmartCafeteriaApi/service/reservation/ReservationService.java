@@ -1,8 +1,8 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.exception.*;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;

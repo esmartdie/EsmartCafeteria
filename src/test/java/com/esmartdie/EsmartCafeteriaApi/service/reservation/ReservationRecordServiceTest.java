@@ -1,10 +1,10 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
+import com.esmartdie.EsmartCafeteriaApi.exception.IllegalCalendarException;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
-import com.esmartdie.EsmartCafeteriaApi.exception.IllegalCalendarException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -13,12 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class ReservationRecordServiceTest {

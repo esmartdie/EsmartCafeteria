@@ -4,16 +4,11 @@ import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.UpdateClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
-import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
-import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 public interface IUserController {
 

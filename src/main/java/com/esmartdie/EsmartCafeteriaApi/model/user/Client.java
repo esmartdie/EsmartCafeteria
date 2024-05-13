@@ -1,12 +1,10 @@
 package com.esmartdie.EsmartCafeteriaApi.model.user;
 
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
-import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

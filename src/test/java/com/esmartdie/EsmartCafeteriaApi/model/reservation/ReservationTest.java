@@ -3,7 +3,6 @@ package com.esmartdie.EsmartCafeteriaApi.model.reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import org.junit.jupiter.api.Test;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

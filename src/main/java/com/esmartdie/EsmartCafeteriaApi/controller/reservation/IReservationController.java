@@ -6,9 +6,10 @@ import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

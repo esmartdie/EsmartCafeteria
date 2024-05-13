@@ -3,7 +3,6 @@ package com.esmartdie.EsmartCafeteriaApi.controller.user;
 import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
-import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")

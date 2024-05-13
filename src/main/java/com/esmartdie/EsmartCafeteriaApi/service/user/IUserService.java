@@ -6,11 +6,7 @@ import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.UpdateClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
-import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface IUserService {
 
