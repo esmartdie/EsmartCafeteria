@@ -274,7 +274,7 @@ public class ReservationService implements IReservationService{
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + reservationId));
 
         if (!reservationDTO.getActionDate().equals(today) || !reservationDTO.getActionDate().equals(reservation.getReservationDate())) {
-            throw new IllegalArgumentException("Reservations can only be updated to 'CONFIRMED' on the same day of the reservation.");
+            throw new IllegalArgumentException("Reservations status could only be updated on the same day of the reservation.");
         }
 
         List<Shift> allowedShifts = getAllowedShifts(reservationDTO.getCurrentTime());

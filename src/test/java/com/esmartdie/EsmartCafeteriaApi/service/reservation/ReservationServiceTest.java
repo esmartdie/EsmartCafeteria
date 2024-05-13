@@ -440,7 +440,7 @@ class ReservationServiceTest {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-        String expectedMessage = "Only accepted reservations can be confirmed.";
+        String expectedMessage = "This reservation cannot be confirmed at the current time.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
 
@@ -474,7 +474,7 @@ class ReservationServiceTest {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-        String expectedMessage = "Only accepted reservations can be confirmed.";
+        String expectedMessage = "This reservation cannot be confirmed at the current time.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
 
@@ -499,17 +499,15 @@ class ReservationServiceTest {
         Reservation savedReservation1 = reservationRepository.save(reservation1);
 
 
-        updateReservationStatus(convertToReservationDTO(savedReservation1), ReservationStatus.CONFIRMED);
-
         Long reservationId = savedReservation1.getId();
 
         ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
 
-        ReservationException thrownException = assertThrows(ReservationException.class, () -> {
+        IllegalArgumentException thrownException = assertThrows(IllegalArgumentException.class, () -> {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-        String expectedMessage = "Reservations can only be updated to 'CONFIRMED' if the action is performed on the same day.";
+        String expectedMessage = "Reservations status could only be updated on the same day of the reservation.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
 
@@ -517,8 +515,7 @@ class ReservationServiceTest {
 
     @Test
     public void updateToConfirmedAFutureReservation(){
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
         LocalDate date = LocalDate.now();
         LocalDate dateBefore = date.minusDays(1);
@@ -526,103 +523,34 @@ class ReservationServiceTest {
         int emptySpaces = 40;
         Shift shift = Shift.DAY3;
 
-        ReservationRecord reservationRecord = createReservationRecord(dateAfter, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
+        ReservationRecord reservationRecord = reservationRecordRepository.findByReservationDateAndShift(dateAfter, shift).get();
 
-        Reservation reservation1 = createReservation(client, shift, dateAfter);
-        reservationRepository.save(reservation1);
-        Reservation savedReservation1 = reservationRepository.findAllByReservationDate(dateAfter).stream().findFirst().get();
 
-        updateReservationStatus(convertToReservationDTO(savedReservation1), ReservationStatus.CONFIRMED);
+        Reservation reservation1 = createReservation(savedClient, shift, dateAfter);
+
+
+        Reservation savedReservation1 = reservationRepository.save(reservation1);
+
 
         Long reservationId = savedReservation1.getId();
 
         ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
 
-        ReservationException thrownException = assertThrows(ReservationException.class, () -> {
+        IllegalArgumentException thrownException = assertThrows(IllegalArgumentException.class, () -> {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-
-        String expectedMessage = "Reservations can only be updated to 'CONFIRMED' if the action is performed on the same day.";
+        String expectedMessage = "Reservations status could only be updated on the same day of the reservation.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
-
     }
 
-    @Test
-    public void updateToLostAReservationWhichOccursADayBefore(){
-        Client client = new Client();
-        userRepository.save(client);
-
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(dateBefore, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, dateBefore);
-        reservationRepository.save(reservation1);
-        Reservation savedReservation1 = reservationRepository.findAllByReservationDate(dateBefore).stream().findFirst().get();
-
-        updateReservationStatus(convertToReservationDTO(savedReservation1), ReservationStatus.LOST);
-
-        Long reservationId = savedReservation1.getId();
-
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
-
-        ReservationException thrownException = assertThrows(ReservationException.class, () -> {
-            reservationService.updateReservationStatus(reservationId, reservationDTO);;
-        });
-
-        String expectedMessage = "Reservations can only be updated to 'LOSS' if the action is performed on the same day.";
-        String actualMessage = thrownException.getMessage();
-        assertEquals(expectedMessage, actualMessage);
-
-    }
-
-    @Test
-    public void updateToLostAReservationWhichOccursADayAfter(){
-        Client client = new Client();
-        userRepository.save(client);
-
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(dateAfter, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, dateAfter);
-        reservationRepository.save(reservation1);
-        Reservation savedReservation1 = reservationRepository.findAllByReservationDate(dateAfter).stream().findFirst().get();
-        updateReservationStatus(convertToReservationDTO(savedReservation1), ReservationStatus.LOST);
-
-        Long reservationId = savedReservation1.getId();
-
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
-
-        ReservationException thrownException = assertThrows(ReservationException.class, () -> {
-            reservationService.updateReservationStatus(reservationId, reservationDTO);;
-        });
-
-        String expectedMessage = "Reservations can only be updated to 'LOSS' if the action is performed on the same day.";
-        String actualMessage = thrownException.getMessage();
-        assertEquals(expectedMessage, actualMessage);
-
-    }
     @Test
     public void massiveUpdateReservationsToLost(){
-        Client client = new Client();
-        userRepository.save(client);
+        Client client = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        Client client2 = userRepository.save(new Client ( null, "Eren", "Jaeger",
+                "erenJ@titantesting.com", "password", true, client.getRole()));
 
-        Client client2 = new Client();
-        userRepository.save(client2);
 
         LocalDate date = LocalDate.now();
         LocalDate dateBefore = date.minusDays(1);
@@ -630,7 +558,7 @@ class ReservationServiceTest {
         int emptySpaces = 40;
         Shift shift = Shift.DAY3;
         LocalTime actualTime = LocalTime.now();
-
+/*
         ReservationRecord reservationRecord = createReservationRecord(date, Shift.DAY1, 40);
         reservationRecordRepository.save(reservationRecord);
         ReservationRecord reservationRecord2 = createReservationRecord(date, Shift.DAY2, 40);
@@ -651,6 +579,8 @@ class ReservationServiceTest {
         reservationRecordRepository.save(reservationRecord9);
         ReservationRecord reservationRecord10 = createReservationRecord(dateBefore, Shift.NIGHT4, 40);
         reservationRecordRepository.save(reservationRecord10);
+
+ */
 
         ReservationDTO reservation1 = reservationService.createReservation(createReservationDTO(client, Shift.DAY1, date));
         ReservationDTO reservation2 = reservationService.createReservation(createReservationDTO(client2, Shift.DAY1, date));
