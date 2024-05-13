@@ -9,12 +9,15 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import com.esmartdie.EsmartCafeteriaApi.exception.ReservationException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ReservationNotFoundException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -57,14 +61,31 @@ class ReservationServiceTest {
     private IUserRepository userRepository;
 
     @Autowired
+    private IRoleRepository roleRepository;
+
+    @Autowired
     private IReservationRecordRepository reservationRecordRepository;
 
     @Autowired
     private IReservationRepository reservationRepository;
 
+    @Autowired
+    private IReservationRecordService reservationRecordService;
+
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        Role role2 = new Role();
+        role2.setId(2L);
+        role2.setName("ROLE_USER");
+        Role role = roleRepository.save(role2);
+        Client client = new Client(2L, "Mikasa", "Ackerman", "mikasaA@titantesting.com", "password", true, role);
+        Client savedClient = userRepository.save(client);
+        List<ReservationRecord> mayCalendar = reservationRecordService.createMonthCalendar(YearMonth.of(2024,5));
+    }
+
+    @BeforeAll
+    public static void allTestSetUP(){
+
     }
 
     @AfterEach
@@ -78,25 +99,21 @@ class ReservationServiceTest {
     @Test
     public void testCreateReservation_HappyPath() {
 
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
         reservation.setShift(Shift.DAY1);
         reservation.setReservationDate(LocalDate.now());
-        when(reservationRecordRepositoryMock.findByReservationDateAndShift(any(), any())).thenReturn(Optional.empty());
-        when(reservationRepositoryMock.save(any())).thenAnswer(invocation -> {
-            Reservation savedReservation = invocation.getArgument(0);
-            savedReservation.setId(1L);
-            return savedReservation;
-        });
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation.getClient(),
+                savedClient,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
         );
 
-        ReservationDTO createdReservation = reservationServiceMock.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
 
         assertNotNull(createdReservation);
         assertEquals(ReservationStatus.ACCEPTED, createdReservation.getReservationStatus());
@@ -104,34 +121,39 @@ class ReservationServiceTest {
 
     @Test
     public void testCreateReservation_ExceedingMaximumDinners() {
+
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+
         Reservation reservation = new Reservation();
         reservation.setDinners(7);
+        reservation.setShift(Shift.DAY2);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation.getClient(),
+                savedClient,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
         );
 
-        assertThrows(ReservationException.class, () -> reservationServiceMock.createReservation(newReservationDTO));
+        assertThrows(ReservationException.class, () -> reservationService.createReservation(newReservationDTO));
     }
 
     @Test
     void testCreateReservation_ReservationNotPossible_LackOfAvailableSpaces() {
-        ReservationRecord reservationRecord = new ReservationRecord();
+        ReservationRecord reservationRecord = reservationRecordRepository.findByReservationDateAndShift( LocalDate.now(), Shift.DAY3).get();
         reservationRecord.setEmptySpaces(0);
-        Mockito.when(reservationRecordRepositoryMock.findByReservationDateAndShift(Mockito.any(), Mockito.any()))
-                .thenReturn(Optional.of(reservationRecord));
+        reservationRecordRepository.save(reservationRecord);
+
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
         Reservation reservation = new Reservation();
-        reservation.setDinners(4);
-        reservation.setReservationStatus(ReservationStatus.PENDING);
-        reservation.setShift(Shift.DAY1);
+        reservation.setDinners(7);
+        reservation.setShift(Shift.DAY3);
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation.getClient(),
+                savedClient,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -139,62 +161,103 @@ class ReservationServiceTest {
 
 
         ReservationException exception = assertThrows(ReservationException.class,
-                () -> reservationServiceMock.createReservation(newReservationDTO));
+                () -> reservationService.createReservation(newReservationDTO));
 
         assertEquals("Reservation is not possible due to lack of available spaces.", exception.getMessage());
     }
 
     @Test
     void testCreateReservation_ReservationNotPossible_MinimumNotPossible() {
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+
         Reservation reservation = new Reservation();
         reservation.setDinners(0);
+        reservation.setShift(Shift.DAY3);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation.getClient(),
+                savedClient,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
         );
 
 
-        assertThrows(ReservationException.class, () -> reservationServiceMock.createReservation(newReservationDTO));
+        ReservationException exception = assertThrows(ReservationException.class,
+                () -> reservationService.createReservation(newReservationDTO));
+
+
+        assertThrows(ReservationException.class, () -> reservationService.createReservation(newReservationDTO));
     }
 
     @Test
     void testGetReservationsByClient() {
-        Client client = new Client();
-        List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepositoryMock.findAllByClient(client)).thenReturn((expectedReservations));
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        List<ReservationDTO> result = reservationServiceMock.getReservationsByClient(client);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
-        assertEquals(expectedReservations.get(0).getClient().getName(), result.get(0).getClientDTO().getName());
-        verify(reservationRepositoryMock, times(1)).findAllByClient(client);
+        NewReservationDTO newReservationDTO = new NewReservationDTO(
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
+        );
+
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
+
+        List<ReservationDTO> result = reservationService.getReservationsByClient(savedClient);
+
+        assertEquals(savedClient.getName(), result.get(0).getClientDTO().getName());
     }
 
     @Test
     void testGetAcceptedReservationsByClient() {
-        Client client = new Client();
-        List<Reservation> expectedReservations = new ArrayList<>();
-        when(reservationRepositoryMock.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED))
-                .thenReturn(expectedReservations);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        List<ReservationDTO> result = reservationServiceMock.getAcceptedReservationsByClient(client);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
-        assertEquals(expectedReservations.get(0).getReservationStatus(), result.get(0).getReservationStatus());
-        verify(reservationRepositoryMock, times(1)).findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
+        NewReservationDTO newReservationDTO = new NewReservationDTO(
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
+        );
+
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
+
+        List<ReservationDTO> result = reservationService.getAcceptedReservationsByClient(savedClient);
+
+        assertEquals(savedClient.getName(), result.get(0).getClientDTO().getName());
+
     }
 
     @Test
     void testGetReservationById() {
-        Long id = 1L;
-        Reservation expectedReservation = new Reservation();
-        when(reservationRepositoryMock.findById(id)).thenReturn(Optional.of(expectedReservation));
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        ReservationDTO result = reservationServiceMock.getReservationById(id);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
-        assertEquals(expectedReservation.getId(), result.getId());
-        verify(reservationRepositoryMock, times(1)).findById(id);
+        NewReservationDTO newReservationDTO = new NewReservationDTO(
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
+        );
+
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
+
+        ReservationDTO result = reservationService.getReservationById(createdReservation.getId());
+
+        assertEquals(createdReservation.getId(), result.getId());
     }
 
     @Test
@@ -226,66 +289,53 @@ class ReservationServiceTest {
     @Test
     public void integrationTestCancelledAReserve_HappyPath() {
 
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(dateAfter, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, dateAfter);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now().plusDays(1));
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
+        savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ReservationDTO cancelledReservation1 = reservationService.cancelReservation(createdReservation.getId(),
+                savedClient);
 
-        ReservationDTO cancelledReservation1 = reservationService.cancelReservation(savedReservation1.getId(), reservation1.getClient());
-
-
-        assertEquals(ReservationStatus.CANCELED, reservationRepository.findById(savedReservation1.getId()).get().getReservationStatus());
+        assertEquals(ReservationStatus.CANCELED, reservationRepository.findById(createdReservation.getId()).get().getReservationStatus());
 
     }
 
     @Test
     public void integrationTestCancelledAReserve_SadPathCancellationSameDayOfReservation() {
 
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(date, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, date);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
+        savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        Long reservationId = savedReservation1.getId();
+        Client finalSavedClient = savedClient;
 
         ReservationException thrownException = assertThrows(ReservationException.class, () -> {
-            reservationService.cancelReservation(reservationId,client);
+            reservationService.cancelReservation(createdReservation.getId(), finalSavedClient);
         });
 
         String expectedMessage = "Cannot cancel a reservation on the same day.";
@@ -296,43 +346,33 @@ class ReservationServiceTest {
     @Test
     public void integrationTestCancelledAReserve_SadPathCancellationConfirmedReservation() {
 
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(date, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, date);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
 
-        Long reservationId = savedReservation1.getId();
+        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(LocalDate.now(), LocalTime.now(), ReservationStatus.CONFIRMED);
 
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
+        ReservationDTO reservationConfirmed = reservationService.updateReservationStatus(createdReservation.getId(), reservationDTO);
 
-
-        ReservationDTO reservationConfirmed = reservationService.updateReservationStatus(reservationId, reservationDTO);
-
-        assertEquals(ReservationStatus.CONFIRMED, reservationRepository.findById(reservationId).get().getReservationStatus());
+        assertEquals(ReservationStatus.CONFIRMED, reservationRepository.findById(createdReservation.getId()).get().getReservationStatus());
 
         ReservationException thrownException = assertThrows(ReservationException.class, () -> {
-            reservationService.cancelReservation(reservationId, client);
+            reservationService.cancelReservation(createdReservation.getId(), savedClient);
         });
 
-        String expectedMessage = "This reservation couldn't be canceled";
+        String expectedMessage = "This reservation can't be canceled as it is not in an acceptable state.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
     }
@@ -340,82 +380,68 @@ class ReservationServiceTest {
     @Test
     public void integrationTestCancelledAReserve_SadPathCancellationLossReservation() {
 
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(date, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, date);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
 
-        Long reservationId = savedReservation1.getId();
+        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(LocalDate.now(), LocalTime.now(), ReservationStatus.LOST);
 
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.LOST);
+        ReservationDTO reservationConfirmed = reservationService.updateReservationStatus(createdReservation.getId(), reservationDTO);
 
-        ReservationDTO lostConfirmed = reservationService.updateReservationStatus(reservationId, reservationDTO);
-
-        assertEquals(ReservationStatus.LOST, reservationRepository.findById(reservationId).get().getReservationStatus());
+        assertEquals(ReservationStatus.LOST, reservationRepository.findById(createdReservation.getId()).get().getReservationStatus());
 
         ReservationException thrownException = assertThrows(ReservationException.class, () -> {
-            reservationService.cancelReservation(reservationId, client);
+            reservationService.cancelReservation(createdReservation.getId(), savedClient);
         });
 
-        String expectedMessage = "This reservation couldn't be canceled";
+
+        String expectedMessage = "This reservation can't be canceled as it is not in an acceptable state.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
     }
 
     @Test
     public void confirmAReservationWhichStatusIsCancelled(){
-        Client client = new Client();
-        userRepository.save(client);
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        ReservationRecord reservationRecord = createReservationRecord(date, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, date);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
 
-        updateReservationStatus(savedReservation1, ReservationStatus.CANCELED);
+        updateReservationStatus(createdReservation, ReservationStatus.CANCELED);
 
-        Long reservationId = savedReservation1.getId();
+        Long reservationId = createdReservation.getId();
 
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.CONFIRMED);
+        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(LocalDate.now(), LocalTime.now(), ReservationStatus.CONFIRMED);
 
         ReservationException thrownException = assertThrows(ReservationException.class, () -> {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-        String expectedMessage = "This reservation couldn't updated to confirmed";
+        String expectedMessage = "Only accepted reservations can be confirmed.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
 
@@ -423,40 +449,33 @@ class ReservationServiceTest {
 
     @Test
     public void updateToLostAReservationWhichStatusIsCancelled(){
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
-        LocalDate date = LocalDate.now();
-        LocalDate dateBefore = date.minusDays(1);
-        LocalDate dateAfter = date.plusDays(1);
-        int emptySpaces = 40;
-        Shift shift = Shift.DAY3;
-
-        ReservationRecord reservationRecord = createReservationRecord(date, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
-
-        Reservation reservation1 = createReservation(client, shift, date);
+        Reservation reservation = new Reservation();
+        reservation.setDinners(4);
+        reservation.setShift(Shift.DAY1);
+        reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                reservation1.getClient(),
-                reservation1.getDinners(),
-                reservation1.getReservationDate(),
-                reservation1.getShift()
+                savedClient,
+                reservation.getDinners(),
+                reservation.getReservationDate(),
+                reservation.getShift()
         );
 
+        ReservationDTO createdReservation = reservationService.createReservation(newReservationDTO);
 
-        ReservationDTO savedReservation1 = reservationService.createReservation(newReservationDTO);
-        updateReservationStatus(savedReservation1, ReservationStatus.LOST);
+        updateReservationStatus(createdReservation, ReservationStatus.CANCELED);
 
-        Long reservationId = savedReservation1.getId();
+        Long reservationId = createdReservation.getId();
 
-        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(date, LocalTime.now(), ReservationStatus.LOST);
+        ReservationStatusUpdatedDTO reservationDTO = new ReservationStatusUpdatedDTO(LocalDate.now(), LocalTime.now(), ReservationStatus.LOST);
 
         ReservationException thrownException = assertThrows(ReservationException.class, () -> {
             reservationService.updateReservationStatus(reservationId, reservationDTO);;
         });
 
-        String expectedMessage = "This reservation couldn't updated to LOST";
+        String expectedMessage = "Only accepted reservations can be confirmed.";
         String actualMessage = thrownException.getMessage();
         assertEquals(expectedMessage, actualMessage);
 
@@ -464,8 +483,7 @@ class ReservationServiceTest {
 
     @Test
     public void updateToConfirmedAReservationWhichOccursADayBefore(){
-        Client client = new Client();
-        userRepository.save(client);
+        Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
 
         LocalDate date = LocalDate.now();
         LocalDate dateBefore = date.minusDays(1);
@@ -473,13 +491,13 @@ class ReservationServiceTest {
         int emptySpaces = 40;
         Shift shift = Shift.DAY3;
 
-        ReservationRecord reservationRecord = createReservationRecord(dateBefore, shift, 40);
-        reservationRecordRepository.save(reservationRecord);
+        ReservationRecord reservationRecord = reservationRecordRepository.findByReservationDateAndShift(dateBefore, shift).get();
 
-        Reservation reservation1 = createReservation(client, shift, dateBefore);
-        reservationRepository.save(reservation1);
 
-        Reservation savedReservation1 = reservationRepository.findAllByReservationDate(dateBefore).stream().findFirst().get();
+        Reservation reservation1 = createReservation(savedClient, shift, dateBefore);
+
+
+        Reservation savedReservation1 = reservationRepository.save(reservation1);
 
 
         updateReservationStatus(convertToReservationDTO(savedReservation1), ReservationStatus.CONFIRMED);
@@ -781,14 +799,9 @@ class ReservationServiceTest {
         return reservationRecord;
     }
 
-    public void updateReservationStatus(ReservationDTO reservationDTO, ReservationStatus status){
+    private void updateReservationStatus(ReservationDTO reservationDTO, ReservationStatus status){
         Client client = (Client)userRepository.findByEmail(reservationDTO.getClientDTO().getEmail()).get();
-        Reservation reservation = new  Reservation(
-                client,
-                reservationDTO.getDinners(),
-                reservationRecordRepository.findByReservationDateAndShift(reservationDTO.getReservationDate(), reservationDTO.getShift()).get(),
-                reservationDTO.getReservationDate(),
-                reservationDTO.getShift());
+        Reservation reservation = reservationRepository.findById(reservationDTO.getId()).get();
 
        if(reservation.getId()!=null){
            reservation.setReservationStatus(status);

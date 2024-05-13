@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -45,7 +47,7 @@ class IRoleRepositoryTest {
     @Test
     void testFindByName_RoleNotFound() {
         String roleName = "ROLE_NON_EXISTING";
-        Role foundRole = roleRepository.findByName(roleName).get();
-        assertNull(foundRole);
+        Optional<Role> foundRole = roleRepository.findByName(roleName);
+        assertTrue(foundRole.isEmpty());
     }
 }

@@ -51,17 +51,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api-docs/**").permitAll()
-                        .requestMatchers("/api-docs").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/api/login/**").permitAll()
-                        .requestMatchers("/api/signup").permitAll()
-                        .requestMatchers("/api/logout").permitAll()
-                        .requestMatchers("/api/calendar/empty_spaces_month").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+                        .requestMatchers("/api/login/**", "/api/signup", "/api/logout", "/api/calendar/empty_spaces_month").permitAll()
                         .requestMatchers("/api/calendar/create_month").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/moderator/**").hasAuthority("ROLE_MODERATOR")
                         .requestMatchers("/api/users/**").hasAuthority("ROLE_USER")
+
+
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .addFilter(customAuthenticationFilter)

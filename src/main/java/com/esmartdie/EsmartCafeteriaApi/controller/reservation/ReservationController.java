@@ -119,12 +119,10 @@ public class ReservationController implements IReservationController{
     @Override
     public ResponseEntity<?> updateReservationsMassivelyToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,
                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime currentTime) {
-        try {
-            reservationService.updateReservationsToLoss(actionDate, currentTime);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        List<ReservationDTO> reservationDTOList = reservationService.updateReservationsToLoss(actionDate, currentTime);
+        return ResponseEntity.ok(new GenericApiResponseDTO(true, "Reservation updated successfully", reservationDTOList));
+
     }
 
 

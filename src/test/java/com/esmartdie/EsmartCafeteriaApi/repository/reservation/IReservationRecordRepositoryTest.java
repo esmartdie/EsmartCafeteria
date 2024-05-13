@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class IReservationRecordRepositoryTest {
 
     @Autowired
@@ -56,7 +58,8 @@ class IReservationRecordRepositoryTest {
 
 
         LocalDate startDate = LocalDate.of(2024, 5, 2);
-        List<ReservationRecord> result = reservationRecordRepository.findAllByReservationDateBetween(startDate, startDate);
+        LocalDate endDate = LocalDate.of(2024, 5, 4);
+        List<ReservationRecord> result = reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
 
         assertEquals(1, result.size());

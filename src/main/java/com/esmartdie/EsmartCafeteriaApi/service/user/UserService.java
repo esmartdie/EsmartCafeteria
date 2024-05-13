@@ -193,11 +193,17 @@ public class UserService implements IUserService {
                 client.getActive());
     }
 
-    public void checkEmailAvailabilityFilterIdResult(String email, Long id) {
-        if (userRepository.existsByEmailAndIdNot(email, id)) {
+    private void checkEmailAvailabilityFilterIdResult(String email, Long id) {
+        if (existsByEmailAndIdNot(email, id)) {
             log.error("The email \" + email + \" is already registered");
             throw new EmailAlreadyExistsException("The email " + email + " is already registered");
         }
+    }
+
+    private boolean existsByEmailAndIdNot(String email, Long id) {
+        return userRepository.findByEmail(email)
+                .map(user -> !user.getId().equals(id))
+                .orElse(false);
     }
 /*
     @Override

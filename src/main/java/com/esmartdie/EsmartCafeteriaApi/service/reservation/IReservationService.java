@@ -31,5 +31,5 @@ public interface IReservationService {
 
     ReservationDTO updateReservationStatus(Long reservationId, ReservationStatusUpdatedDTO reservationDTO);
 
-    void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
+    List<ReservationDTO>  updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime);
 }

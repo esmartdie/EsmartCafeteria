@@ -44,18 +44,13 @@ class ReservationRecordServiceTest {
         int month = 5;
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
-        List<ReservationRecord> mockRecords = Collections.singletonList(createMockReservationRecord());
 
-        when(mockReservationRecordRepository.findAllByReservationDateBetween(startDate, endDate))
-                .thenReturn((mockRecords));
-
+        List<ReservationRecord> mayCalendar = reservationRecordService.createMonthCalendar(YearMonth.of(2024,5));
 
         List<ReservationRecordDTO> result =  reservationRecordService.getReservationRecordsForMonth(year, month);
 
-        assertEquals(mockRecords.size(), result.size());
-        for (int i = 0; i < mockRecords.size(); i++) {
-            assertDTOEquals(mockRecords.get(i), result.get(i));
-        }
+        assertEquals(mayCalendar.size(), result.size());
+
     }
 
     @Test

@@ -272,7 +272,7 @@ public class ReservationService implements IReservationService{
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + reservationId));
 
-        if (!reservation.getClient().equals(client)) {
+        if (!reservation.getClient().getId().equals(client.getId())) {
             throw new ReservationException("You are not authorized to cancel this reservation.");
         }
 
@@ -326,8 +326,10 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public void updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
+    public List<ReservationDTO>  updateReservationsToLoss(LocalDate actionDate, LocalTime currentTime) {
         LocalDate today = LocalDate.now();
+
+        List<ReservationDTO> reservationDTOList = new ArrayList<>();
 
         if (!actionDate.equals(today)) {
             throw new IllegalArgumentException("Reservations can only be updated on the same day.");
@@ -348,7 +350,10 @@ public class ReservationService implements IReservationService{
             List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShiftAndReservationStatus(actionDate, shift, ReservationStatus.ACCEPTED);
             reservations.forEach(reservation -> reservation.setReservationStatus(ReservationStatus.LOST));
             reservationRepository.saveAll(reservations);
+            reservations.forEach(reservation->reservationDTOList.add(convertToReservationDTO(reservation)));
         }
+
+        return reservationDTOList;
     }
 
 

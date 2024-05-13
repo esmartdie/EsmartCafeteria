@@ -16,6 +16,7 @@ import com.esmartdie.EsmartCafeteriaApi.service.reservation.IReservationRecordSe
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@Profile("demo")
 public class DemoDataLoader {
 
     @Autowired
