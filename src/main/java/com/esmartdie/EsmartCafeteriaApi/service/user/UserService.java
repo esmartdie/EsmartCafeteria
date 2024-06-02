@@ -14,6 +14,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class UserService implements IUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    private final DTOConverter converter;
 
     @Override
     public <T extends User> T saveUser(T user) {

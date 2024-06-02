@@ -85,7 +85,7 @@ public class DemoDataLoader {
     }
 
     private void openCalendar(){
-        reservationRecordService.createMonthCalendar(YearMonth.of(2024, 05));
+        reservationRecordService.createMonthCalendar(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
     }
 
     private void createReservations(){

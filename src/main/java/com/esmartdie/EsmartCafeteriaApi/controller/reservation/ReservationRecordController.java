@@ -5,6 +5,7 @@ import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.YearMonthDTO;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.service.reservation.ReservationRecordService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class ReservationRecordController implements IReservationRecordController
     @PostMapping("/create_month")
     @ResponseStatus(HttpStatus.CREATED)
     @Override
-    public ResponseEntity<?> createCalendar(@RequestBody YearMonthDTO yearMonthDTO) {
+    public ResponseEntity<?> createCalendar(@Valid @RequestBody YearMonthDTO yearMonthDTO) {
         YearMonth yearMonth = yearMonthDTO.getYearMonth();
 
         List<ReservationRecord> openCalendar =  reservationRecordService.createMonthCalendar(yearMonth);

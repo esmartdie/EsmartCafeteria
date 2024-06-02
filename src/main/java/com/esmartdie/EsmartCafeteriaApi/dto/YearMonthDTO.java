@@ -1,5 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.dto;
 
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.time.YearMonth;
@@ -8,14 +9,11 @@ import java.time.format.DateTimeParseException;
 @Data
 public class YearMonthDTO {
 
+    @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$", message = "Invalid yearMonth format, expected YYYY-MM")
     private String yearMonth;
 
     public YearMonth getYearMonth() {
-        try {
-            return YearMonth.parse(yearMonth);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid yearMonth format, expected YYYY-MM format.");
-        }
+        return YearMonth.parse(yearMonth);
     }
 
     public void setYearMonth(String yearMonthStr) {

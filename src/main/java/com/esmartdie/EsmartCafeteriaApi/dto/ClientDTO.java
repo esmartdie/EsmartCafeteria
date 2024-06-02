@@ -1,5 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.dto;
 
+import com.esmartdie.EsmartCafeteriaApi.utils.ValidationGroups;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,9 +12,9 @@ public class ClientDTO {
     private String name;
     private String lastName;
     private String email;
-    @Min(value = 1, message = "Rating must be greater than or equal to 1")
-    @Max(value = 10, message = "Rating must be less than or equal to 10")
-    @Digits(integer = 2, fraction = 2, message = "Rating must not contain more than two decimal places")
+    @Min(value = 1, message = "Rating must be greater than or equal to 1", groups = ValidationGroups.RatingInfo.class)
+    @Max(value = 10, message = "Rating must be less than or equal to 10", groups = ValidationGroups.RatingInfo.class)
+    @Digits(integer = 2, fraction = 2, message = "Rating must not contain more than two decimal places", groups = ValidationGroups.RatingInfo.class)
     private double rating;
     private boolean active;
 
