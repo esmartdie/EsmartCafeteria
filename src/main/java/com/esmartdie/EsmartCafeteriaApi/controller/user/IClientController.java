@@ -1,9 +1,11 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.utils.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,5 +23,5 @@ public interface IClientController {
                                                            @RequestParam boolean isActive);
 
     void updateClientRating(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id,
-                            @Valid @RequestBody ClientDTO clientDTO);
+                            @Validated(ValidationGroups.RatingInfo.class) @RequestBody ClientDTO clientDTO);
 }

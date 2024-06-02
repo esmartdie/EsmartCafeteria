@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationRecordDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.YearMonthDTO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
@@ -16,5 +17,5 @@ public interface IReservationRecordController {
             @RequestParam("month") @Min(value = 1, message = "Month must be between 1 and 12") @Max(value = 12,
                     message = "Month must be between 1 and 12") int month);
 
-    ResponseEntity<?> createCalendar(@RequestBody YearMonthDTO yearMonthDTO);
+    ResponseEntity<?> createCalendar(@Valid @RequestBody YearMonthDTO yearMonthDTO);
 }

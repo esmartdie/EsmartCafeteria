@@ -110,8 +110,6 @@ public class ReservationController implements IReservationController{
         return ResponseEntity.ok(new GenericApiResponseDTO(true, "Reservation updated successfully", updatedReservation));
     }
 
-
-
     @PutMapping("/moderator/reservation/massiveReservationUpdatingToLoss")
     @Override
     public ResponseEntity<?> updateReservationsMassivelyToLoss(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate actionDate,

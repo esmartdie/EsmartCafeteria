@@ -66,8 +66,8 @@ public class ReservationService implements IReservationService{
 
     private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
 
-        Client client = (Client)userRepository.findById(reservationDTO.getClient().getId()).orElseThrow(
-                ()->new ResourceNotFoundException("Client not found with id: " +reservationDTO.getClient().getId()));
+        Client client = (Client)userRepository.findById(reservationDTO.getClientDTO().getId()).orElseThrow(
+                ()->new ResourceNotFoundException("Client not found with id: " +reservationDTO.getClientDTO().getId()));
 
         ReservationRecord record = reservationRecordRepository.
                 findByReservationDateAndShift(reservationDTO.getReservationDate(), reservationDTO.getShift()).orElseThrow(

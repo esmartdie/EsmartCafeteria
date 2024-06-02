@@ -21,6 +21,10 @@ public class ClientDTO {
     public ClientDTO() {
     }
 
+    public ClientDTO(Long id) {
+        this.id = id;
+    }
+
     public ClientDTO(Long id, String name, String lastName, String email, Boolean active) {
         this.id = id;
         this.name=name;

@@ -18,7 +18,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class NewReservationDTO {
 
-    private Client client;
+    @Valid
+    private ClientDTO clientDTO;
 
     @NotNull(message = "Number of dinners must be provided")
     @Min(value = 1, message = "There must be at least one diner")
