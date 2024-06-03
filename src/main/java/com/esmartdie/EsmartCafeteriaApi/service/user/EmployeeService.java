@@ -2,10 +2,12 @@ package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeResponseDTO;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IEmployeeRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,37 +27,20 @@ public class EmployeeService implements IEmployeeService{
     @Autowired
     private IUserRepository userRepository;
 
+    private final DTOConverter converter;
+
     @Override
-    public List<EmployeeDTO> getActiveEmployees() {
+    public List<EmployeeResponseDTO> getActiveEmployees() {
         log.info("Fetching all active Employees");
         List<Employee> employees = employeeRepository.findAllActive();
-        return createEmployeeDTOList(employees);
-    }
-
-    private List<EmployeeDTO>  createEmployeeDTOList(List<Employee> employees){
-        List<EmployeeDTO> employeeDTOList = new ArrayList<>();
-
-        for(Employee employee : employees){
-            EmployeeDTO employeeDTO;
-            employeeDTO = new EmployeeDTO();
-            employeeDTO.setId(employee.getId());
-            employeeDTO.setName(employee.getName());
-            employeeDTO.setLastName(employee.getLastName());
-            employeeDTO.setEmail(employee.getEmail());
-            employeeDTO.setActive(employee.getActive());
-            employeeDTO.setEmployee_id(employee.getEmployee_id());
-
-            employeeDTOList.add(employeeDTO);
-        }
-
-        return employeeDTOList;
+        return converter.createEmployeeResponseDTOList(employees);
     }
 
     @Override
-    public List<EmployeeDTO> getInactiveEmployees() {
+    public List<EmployeeResponseDTO> getInactiveEmployees() {
         log.info("Fetching all inactive Employees");
         List<Employee> employees = employeeRepository.findAllInactive();
-        return createEmployeeDTOList(employees);
+        return converter.createEmployeeResponseDTOList(employees);
     }
 
     @Override

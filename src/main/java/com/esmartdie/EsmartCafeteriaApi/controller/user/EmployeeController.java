@@ -1,6 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeResponseDTO;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IEmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,15 +19,15 @@ public class EmployeeController implements IEmployeeController{
     @GetMapping("/active")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployeeActive() {
-        List<EmployeeDTO> activeEmployees = employeeService.getActiveEmployees();
+    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployeeActive() {
+        List<EmployeeResponseDTO> activeEmployees = employeeService.getActiveEmployees();
         return ResponseEntity.ok(activeEmployees);
     }
     @GetMapping("/inactive")
     @ResponseStatus(HttpStatus.OK)
     @Override
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployeeInactive() {
-        List<EmployeeDTO> inactiveEmployees = employeeService.getInactiveEmployees();
+    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployeeInactive() {
+        List<EmployeeResponseDTO> inactiveEmployees = employeeService.getInactiveEmployees();
         return ResponseEntity.ok(inactiveEmployees);
     }
     @PatchMapping("/{employeeId}/updateStatus")

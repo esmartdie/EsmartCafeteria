@@ -1,10 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
-import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.UpdateClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
@@ -35,7 +32,6 @@ public class UserService implements IUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     private final DTOConverter converter;
 
     @Override
@@ -53,54 +49,27 @@ public class UserService implements IUserService {
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
 
-        Client client = new Client(
-               null,
-               clientDTO.getName(),
-               clientDTO.getLastName(),
-               clientDTO.getEmail(),
-               clientDTO.getPassword(),
-               clientDTO.isActive(),
-               userRole
-        );
+        Client client = saveUser(converter.convertClientFromNewClientDTO(clientDTO, userRole));
 
-        client = saveUser(client);
-
-        return new ClientDTO(
-                client.getId(),
-                client.getName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getActive()
-        );
+        return converter.convertClientDTOFromClient(client);
     }
 
     @Override
-    public EmployeeDTO createEmployeeFromDTO(EmployeeDTO employeeDTO) {
+    public EmployeeResponseDTO createEmployeeFromDTO(EmployeeDTO employeeDTO) {
 
         checkEmailAvailability(employeeDTO.getEmail());
 
         Role userRole = roleRepository.findByName("ROLE_MODERATOR")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-        Employee employee =  new Employee(
-                null,
-                employeeDTO.getName(),
-                employeeDTO.getLastName(),
-                employeeDTO.getEmail(),
-                employeeDTO.getPassword(),
-                employeeDTO.isActive(),
-                userRole,
-                employeeDTO.getEmployee_id()
-        );
 
-        employee = saveUser(employee);
-        employeeDTO.setId(employee.getId());
+        Employee employee = saveUser(converter.convertEmployeeFromEmployeeDTO(employeeDTO, userRole));
 
-        return employeeDTO;
+        return converter.convertEmployeeResponseDTOFromEmployee(employee);
 
     }
 
-    public void checkEmailAvailability(String email) {
+    private void checkEmailAvailability(String email) {
         if (userRepository.existsByEmail(email)) {
             log.error("The email \" + email + \" is already registered");
             throw new EmailAlreadyExistsException("The email " + email + " is already registered");
@@ -145,11 +114,7 @@ public class UserService implements IUserService {
 
         client=userRepository.save(client);
 
-        return new ClientDTO(client.getId(),
-                client.getName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getActive());
+        return converter.convertClientDTOFromClient(client);
     }
 
     private void checkEmailAvailabilityFilterIdResult(String email, Long id) {

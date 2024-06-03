@@ -28,7 +28,7 @@ public class UserController implements IUserController{
     @Override
     @PostMapping("/admin/employee/create")
     public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        EmployeeDTO employee = userService.createEmployeeFromDTO(employeeDTO);
+        EmployeeResponseDTO employee = userService.createEmployeeFromDTO(employeeDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "Employee created successfully", employee));
     }
 

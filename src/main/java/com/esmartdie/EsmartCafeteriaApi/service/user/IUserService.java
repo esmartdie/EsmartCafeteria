@@ -1,9 +1,6 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
-import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.UpdateClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
@@ -14,7 +11,7 @@ public interface IUserService {
 
     ClientDTO createClientFromDTO(NewClientDTO clientDTO);
 
-    EmployeeDTO createEmployeeFromDTO(EmployeeDTO employeeDTO);
+    EmployeeResponseDTO createEmployeeFromDTO(EmployeeDTO employeeDTO);
 
     Client getClientById(Long id);
 
