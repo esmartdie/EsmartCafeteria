@@ -49,9 +49,9 @@ public class UserService implements IUserService {
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
 
-        Client client = saveUser(converter.convertClientFromNewClientDTO(clientDTO, userRole));
+        Client client = saveUser(converter.createClientFromNewClientDTO(clientDTO, userRole));
 
-        return converter.convertClientDTOFromClient(client);
+        return converter.createClientDTOFromClient(client);
     }
 
     @Override
@@ -63,9 +63,9 @@ public class UserService implements IUserService {
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
 
-        Employee employee = saveUser(converter.convertEmployeeFromEmployeeDTO(employeeDTO, userRole));
+        Employee employee = saveUser(converter.createEmployeeFromEmployeeDTO(employeeDTO, userRole));
 
-        return converter.convertEmployeeResponseDTOFromEmployee(employee);
+        return converter.createEmployeeResponseDTOFromEmployee(employee);
 
     }
 
@@ -114,7 +114,7 @@ public class UserService implements IUserService {
 
         client=userRepository.save(client);
 
-        return converter.convertClientDTOFromClient(client);
+        return converter.createClientDTOFromClient(client);
     }
 
     private void checkEmailAvailabilityFilterIdResult(String email, Long id) {

@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.utils;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
+import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Employee;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
@@ -13,7 +14,7 @@ import java.util.List;
 @Component
 public class DTOConverter {
 
-    public Client convertClientFromNewClientDTO (NewClientDTO newClientDTO, Role userRole){
+    public Client createClientFromNewClientDTO(NewClientDTO newClientDTO, Role userRole){
         return new Client(
                 null,
                 newClientDTO.getName(),
@@ -25,7 +26,7 @@ public class DTOConverter {
         );
     }
 
-    public ClientDTO convertClientDTOFromClient (Client client){
+    public ClientDTO createClientDTOFromClient(Client client){
 
         return new ClientDTO(
                 client.getId(),
@@ -36,7 +37,7 @@ public class DTOConverter {
         );
     }
 
-    public Employee convertEmployeeFromEmployeeDTO (EmployeeDTO employeeDTO, Role userRole){
+    public Employee createEmployeeFromEmployeeDTO(EmployeeDTO employeeDTO, Role userRole){
 
         return new Employee(
                 null,
@@ -50,7 +51,7 @@ public class DTOConverter {
         );
     }
 
-    public EmployeeResponseDTO convertEmployeeResponseDTOFromEmployee (Employee employee){
+    public EmployeeResponseDTO createEmployeeResponseDTOFromEmployee(Employee employee){
 
         return new EmployeeResponseDTO(
                 employee.getId(),
@@ -65,7 +66,7 @@ public class DTOConverter {
     public List<ClientDTO> createClientDTOList(List<Client> clients) {
         List<ClientDTO> clientDTOList = new ArrayList<>();
         for (Client client : clients) {
-            ClientDTO clientDTO = convertClientDTOFromClient(client);
+            ClientDTO clientDTO = createClientDTOFromClient(client);
             clientDTOList.add(clientDTO);
         }
         return clientDTOList;
@@ -74,13 +75,13 @@ public class DTOConverter {
     public List<EmployeeResponseDTO> createEmployeeResponseDTOList(List<Employee> employees) {
         List<EmployeeResponseDTO> employeeDTOList = new ArrayList<>();
         for (Employee employee : employees) {
-            EmployeeResponseDTO employeeDTO = convertEmployeeResponseDTOFromEmployee(employee);
+            EmployeeResponseDTO employeeDTO = createEmployeeResponseDTOFromEmployee(employee);
             employeeDTOList.add(employeeDTO);
         }
         return employeeDTOList;
     }
 
-    public ReservationDTO convertReservationDTOFromReservation (Reservation reservation) {
+    public ReservationDTO createReservationDTOFromReservation(Reservation reservation) {
         ReservationDTO dto = new ReservationDTO();
         dto.setId(reservation.getId());
         dto.setDinners(reservation.getDinners());
@@ -88,10 +89,18 @@ public class DTOConverter {
         dto.setShift(reservation.getShift());
         dto.setReservationStatus(reservation.getReservationStatus());
 
-        ClientDTO clientDTO = convertClientDTOFromClient(reservation.getClient());
+        ClientDTO clientDTO = createClientDTOFromClient(reservation.getClient());
         dto.setClientDTO(clientDTO);
 
         return dto;
     }
 
+    public ReservationRecordDTO createReservationRecordDTOFromReservationRecord(ReservationRecord reservationRecord) {
+        ReservationRecordDTO dto = new ReservationRecordDTO();
+        dto.setId(reservationRecord.getId());
+        dto.setReservationDate(reservationRecord.getReservationDate());
+        dto.setShift(reservationRecord.getShift());
+        dto.setAvailableReservations(reservationRecord.getEmptySpaces());
+        return dto;
+    }
 }

@@ -16,6 +16,7 @@ import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecor
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +50,6 @@ class ReservationServiceTest {
     @InjectMocks
     private ReservationService reservationServiceMock;
 
-
     @Mock
     private ReservationNotFoundException reservationNotFoundException;
 
@@ -70,6 +70,9 @@ class ReservationServiceTest {
 
     @Autowired
     private IReservationRecordService reservationRecordService;
+
+    @Autowired
+    private DTOConverter converter;
 
     @BeforeEach
     public void setUp() {
@@ -99,6 +102,7 @@ class ReservationServiceTest {
     public void testCreateReservation_HappyPath() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -106,7 +110,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -122,6 +126,7 @@ class ReservationServiceTest {
     public void testCreateReservation_ExceedingMaximumDinners() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(7);
@@ -129,7 +134,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -145,6 +150,7 @@ class ReservationServiceTest {
         reservationRecordRepository.save(reservationRecord);
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(7);
@@ -152,7 +158,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -168,6 +174,7 @@ class ReservationServiceTest {
     @Test
     void testCreateReservation_ReservationNotPossible_MinimumNotPossible() {
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(0);
@@ -175,7 +182,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -192,6 +199,7 @@ class ReservationServiceTest {
     @Test
     void testGetReservationsByClient() {
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -199,7 +207,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -215,6 +223,7 @@ class ReservationServiceTest {
     @Test
     void testGetAcceptedReservationsByClient() {
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -222,7 +231,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -239,6 +248,7 @@ class ReservationServiceTest {
     @Test
     void testGetReservationById() {
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -246,7 +256,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -289,6 +299,7 @@ class ReservationServiceTest {
     public void integrationTestCancelledAReserve_HappyPath() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -296,7 +307,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now().plusDays(1));
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -315,6 +326,7 @@ class ReservationServiceTest {
     public void integrationTestCancelledAReserve_SadPathCancellationSameDayOfReservation() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -322,7 +334,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -346,6 +358,7 @@ class ReservationServiceTest {
     public void integrationTestCancelledAReserve_SadPathCancellationConfirmedReservation() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -353,7 +366,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -380,6 +393,7 @@ class ReservationServiceTest {
     public void integrationTestCancelledAReserve_SadPathCancellationLossReservation() {
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -387,7 +401,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -415,6 +429,7 @@ class ReservationServiceTest {
     public void confirmAReservationWhichStatusIsCancelled(){
 
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -422,7 +437,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -449,6 +464,7 @@ class ReservationServiceTest {
     @Test
     public void updateToLostAReservationWhichStatusIsCancelled(){
         Client savedClient = (Client)userRepository.findByEmail("mikasaA@titantesting.com").get();
+        ClientDTO clientDTO = converter.createClientDTOFromClient(savedClient);
 
         Reservation reservation = new Reservation();
         reservation.setDinners(4);
@@ -456,7 +472,7 @@ class ReservationServiceTest {
         reservation.setReservationDate(LocalDate.now());
 
         NewReservationDTO newReservationDTO = new NewReservationDTO(
-                savedClient,
+                clientDTO,
                 reservation.getDinners(),
                 reservation.getReservationDate(),
                 reservation.getShift()
@@ -551,6 +567,8 @@ class ReservationServiceTest {
         Client client2 = userRepository.save(new Client ( null, "Eren", "Jaeger",
                 "erenJ@titantesting.com", "password", true, client.getRole()));
 
+        ClientDTO clientDTO = converter.createClientDTOFromClient(client);
+        ClientDTO clientDTO2 = converter.createClientDTOFromClient(client2);
 
         LocalDate date = LocalDate.now();
         LocalDate dateBefore = date.minusDays(1);
@@ -582,24 +600,24 @@ class ReservationServiceTest {
 
  */
 
-        ReservationDTO reservation1 = reservationService.createReservation(createReservationDTO(client, Shift.DAY1, date));
-        ReservationDTO reservation2 = reservationService.createReservation(createReservationDTO(client2, Shift.DAY1, date));
-        ReservationDTO reservation3 = reservationService.createReservation(createReservationDTO(client, Shift.DAY2, date));
-        ReservationDTO reservation4 = reservationService.createReservation(createReservationDTO(client2, Shift.DAY2, date));
-        ReservationDTO reservation5 = reservationService.createReservation(createReservationDTO(client, Shift.DAY3, date));
-        ReservationDTO reservation6 = reservationService.createReservation(createReservationDTO(client2, Shift.DAY3, date));
-        ReservationDTO reservation7 = reservationService.createReservation(createReservationDTO(client, Shift.DAY4, date));
-        ReservationDTO reservation8 = reservationService.createReservation(createReservationDTO(client2, Shift.DAY4, date));
-        ReservationDTO reservation9 = reservationService.createReservation(createReservationDTO(client, Shift.NIGHT1, date));
-        ReservationDTO reservation10 = reservationService.createReservation(createReservationDTO(client2, Shift.NIGHT1, date));
-        ReservationDTO reservation11 = reservationService.createReservation(createReservationDTO(client, Shift.NIGHT2, date));
-        ReservationDTO reservation12 = reservationService.createReservation(createReservationDTO(client2, Shift.NIGHT2, date));
-        ReservationDTO reservation13 = reservationService.createReservation(createReservationDTO(client, Shift.NIGHT3, date));
-        ReservationDTO reservation14 = reservationService.createReservation(createReservationDTO(client2, Shift.NIGHT3, date));
-        ReservationDTO reservation15 = reservationService.createReservation(createReservationDTO(client, Shift.NIGHT4, date));
-        ReservationDTO reservation16 = reservationService.createReservation(createReservationDTO(client2, Shift.NIGHT4, date));
-        ReservationDTO reservation17 = reservationService.createReservation(createReservationDTO(client, Shift.NIGHT4, dateAfter));
-        ReservationDTO reservation18 = reservationService.createReservation(createReservationDTO(client2, Shift.NIGHT4, dateAfter));
+        ReservationDTO reservation1 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.DAY1, date));
+        ReservationDTO reservation2 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.DAY1, date));
+        ReservationDTO reservation3 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.DAY2, date));
+        ReservationDTO reservation4 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.DAY2, date));
+        ReservationDTO reservation5 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.DAY3, date));
+        ReservationDTO reservation6 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.DAY3, date));
+        ReservationDTO reservation7 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.DAY4, date));
+        ReservationDTO reservation8 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.DAY4, date));
+        ReservationDTO reservation9 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.NIGHT1, date));
+        ReservationDTO reservation10 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.NIGHT1, date));
+        ReservationDTO reservation11 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.NIGHT2, date));
+        ReservationDTO reservation12 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.NIGHT2, date));
+        ReservationDTO reservation13 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.NIGHT3, date));
+        ReservationDTO reservation14 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.NIGHT3, date));
+        ReservationDTO reservation15 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.NIGHT4, date));
+        ReservationDTO reservation16 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.NIGHT4, date));
+        ReservationDTO reservation17 = reservationService.createReservation(createReservationDTO(clientDTO, Shift.NIGHT4, dateAfter));
+        ReservationDTO reservation18 = reservationService.createReservation(createReservationDTO(clientDTO2, Shift.NIGHT4, dateAfter));
         Reservation reservation19 = createReservation(client, Shift.NIGHT4, dateBefore);
         reservation19.setReservationStatus(ReservationStatus.ACCEPTED);
         Reservation reservation20 = createReservation(client2, Shift.NIGHT4, dateBefore);
@@ -706,9 +724,9 @@ class ReservationServiceTest {
         return reservation;
     }
 
-    private NewReservationDTO createReservationDTO (Client client, Shift shift, LocalDate date) {
+    private NewReservationDTO createReservationDTO (ClientDTO clientDTO, Shift shift, LocalDate date) {
         NewReservationDTO reservation = new NewReservationDTO();
-        reservation.setClient(client);
+        reservation.setClientDTO(clientDTO);
         reservation.setDinners(2);
         reservation.setReservationDate(date);
         reservation.setShift(shift);

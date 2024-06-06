@@ -1,6 +1,9 @@
 package com.esmartdie.EsmartCafeteriaApi.model.user;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,17 +21,23 @@ public class UserLogs {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
+    @NotEmpty
     private Long id;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @PastOrPresent
     private LocalDate sessionStartDate;
 
+    @PastOrPresent
     private LocalTime sessionStartTime;
 
+    @PastOrPresent
     private LocalDate sessionEndDate;
 
+    @PastOrPresent
     private LocalTime sessionEndTime;
 }

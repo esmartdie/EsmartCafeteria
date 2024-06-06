@@ -1,6 +1,5 @@
 package com.esmartdie.EsmartCafeteriaApi.service.reservation;
 
-import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.NewReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationDTO;
 import com.esmartdie.EsmartCafeteriaApi.dto.ReservationStatusUpdatedDTO;
@@ -63,7 +62,7 @@ public class ReservationService implements IReservationService{
         Reservation savedReservation = reservationRepository.save(reservation);
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
 
-        return converter.convertReservationDTOFromReservation(savedReservation);
+        return converter.createReservationDTOFromReservation(savedReservation);
     }
 
     private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
@@ -152,7 +151,7 @@ public class ReservationService implements IReservationService{
     public List<ReservationDTO> getReservationsByClient(Client client) {
         List <Reservation> reservations = reservationRepository.findAllByClient(client);
         return reservations.stream()
-                .map(converter::convertReservationDTOFromReservation)
+                .map(converter::createReservationDTOFromReservation)
                 .collect(Collectors.toList());
     }
 
@@ -186,7 +185,7 @@ public class ReservationService implements IReservationService{
     public List<ReservationDTO> getAcceptedReservationsByClient(Client client) {
         List <Reservation> reservations = reservationRepository.findAllByClientAndReservationStatus(client, ReservationStatus.ACCEPTED);
         return reservations.stream()
-                .map(converter::convertReservationDTOFromReservation)
+                .map(converter::createReservationDTOFromReservation)
                 .collect(Collectors.toList());
     }
 
@@ -196,7 +195,7 @@ public class ReservationService implements IReservationService{
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with ID: " + id));
 
-        return converter.convertReservationDTOFromReservation(reservation);
+        return converter.createReservationDTOFromReservation(reservation);
     }
 
     @Override
@@ -205,7 +204,7 @@ public class ReservationService implements IReservationService{
         List <Reservation> reservations =reservationRepository.findAllByReservationDate(date);
 
         return reservations.stream()
-                .map(converter::convertReservationDTOFromReservation)
+                .map(converter::createReservationDTOFromReservation)
                 .collect(Collectors.toList());
     }
 
@@ -215,7 +214,7 @@ public class ReservationService implements IReservationService{
         List <Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(date, shift);
 
         return reservations.stream()
-                .map(converter::convertReservationDTOFromReservation)
+                .map(converter::createReservationDTOFromReservation)
                 .collect(Collectors.toList());
     }
 
@@ -244,7 +243,7 @@ public class ReservationService implements IReservationService{
         reservation.setReservationStatus(ReservationStatus.CANCELED);
         reservation = reservationRepository.save(reservation);
         recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
-        return converter.convertReservationDTOFromReservation(reservation);
+        return converter.createReservationDTOFromReservation(reservation);
     }
 
     @Override
@@ -275,7 +274,7 @@ public class ReservationService implements IReservationService{
         }
         reservationRepository.save(reservation);
 
-        return converter.convertReservationDTOFromReservation(reservation);
+        return converter.createReservationDTOFromReservation(reservation);
     }
 
     @Override
@@ -304,7 +303,7 @@ public class ReservationService implements IReservationService{
                     actionDate, shift, ReservationStatus.ACCEPTED);
             reservations.forEach(reservation -> reservation.setReservationStatus(ReservationStatus.LOST));
             reservationRepository.saveAll(reservations);
-            reservations.forEach(reservation->reservationDTOList.add(converter.convertReservationDTOFromReservation(reservation)));
+            reservations.forEach(reservation->reservationDTOList.add(converter.createReservationDTOFromReservation(reservation)));
         }
 
         return reservationDTOList;
