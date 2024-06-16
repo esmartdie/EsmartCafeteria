@@ -50,19 +50,14 @@ public class ReservationService implements IReservationService{
 
         Reservation reservation = createReservationFromDTO(reservationDTO);
 
-        isReservationPossible(reservation);
-
-        int dinners = reservation.getDinners();
-
-        if(dinners < 1 || dinners > 6){
-            throw new ReservationException("Reservation is not possible.");
+        if (isReservationPossible(reservation)) {
+            reservation.setReservationStatus(ReservationStatus.ACCEPTED);
+            Reservation savedReservation = reservationRepository.save(reservation);
+            recalculateTotalDinners(savedReservation.getReservationDate(), savedReservation.getShift());
+            return converter.createReservationDTOFromReservation(savedReservation);
+        } else {
+            throw new ReservationException("Reservation is not possible");
         }
-
-        reservation.setReservationStatus(ReservationStatus.ACCEPTED);
-        Reservation savedReservation = reservationRepository.save(reservation);
-        recalculateTotalDinners(reservation.getReservationDate(), reservation.getShift());
-
-        return converter.createReservationDTOFromReservation(savedReservation);
     }
 
     private Reservation createReservationFromDTO (NewReservationDTO reservationDTO){
@@ -84,66 +79,52 @@ public class ReservationService implements IReservationService{
                 reservationDTO.getShift());
     }
 
-    private void isReservationPossible(Reservation reservation){
-        if (!checkEmptySpace(reservation)) {
+    private boolean isReservationPossible(Reservation reservation){
+        if(!validateDinners(reservation)) {
+            throw new ReservationException("Reservation is not possible due the amount of dinners.");
+        }else if (!checkEmptySpace(reservation)) {
             throw new ReservationException("Reservation is not possible due to lack of available spaces.");
         } else if (checkPassReserved(reservation)) {
             throw new ReservationException("Couldn't made a reservation on a passed day");
         }else if(hasOtherAcceptedReservation(reservation)){
             throw new ReservationException("Clients couldn't had different reservation for the same day and shift");
         }
-    }
-
-    private boolean checkEmptySpace(Reservation reservation) {
-        LocalDate reservationDate = reservation.getReservationDate();
-        Shift shift = reservation.getShift();
-        Optional<ReservationRecord> optionalReservationRecord =
-                reservationRecordRepository.findByReservationDateAndShift(reservationDate, shift);
-        if (optionalReservationRecord.isPresent()) {
-            ReservationRecord reservationRecord = optionalReservationRecord.get();
-            return reservationRecord.getEmptySpaces() >= reservation.getDinners();
-        }
         return true;
     }
 
-    private boolean checkPassReserved(Reservation reservation){
-        LocalDate reservationDate = reservation.getReservationDate();
-        LocalDate today = LocalDate.now();
-        if(reservationDate.isBefore(today)) {
-            return true;
-        }
-        return false;
+    private boolean checkEmptySpace(Reservation reservation) {
+        Optional<ReservationRecord> optionalReservationRecord =
+                reservationRecordRepository.findByReservationDateAndShift(reservation.getReservationDate(), reservation.getShift());
+        return optionalReservationRecord.map(record -> record.getEmptySpaces() >= reservation.getDinners()).orElse(true);
     }
 
-    private boolean hasOtherAcceptedReservation(Reservation reservation){
-        Client client = reservation.getClient();
-        Shift shift = reservation.getShift();
-        LocalDate reservationDate = reservation.getReservationDate();
+    private boolean checkPassReserved(Reservation reservation) {
+        return reservation.getReservationDate().isBefore(LocalDate.now());
+    }
 
-        Optional<Reservation> optionalReservation =
-                reservationRepository.findByClientAndReservationDateAndShift(client, reservationDate, shift)
-                        .stream()
-                        .filter(r -> r.getReservationStatus() == ReservationStatus.ACCEPTED && !r.equals(reservation))
-                        .findFirst();
 
-        return optionalReservation.isPresent();
+    private boolean hasOtherAcceptedReservation(Reservation reservation) {
+        return reservationRepository.findByClientAndReservationDateAndShift(reservation.getClient(), reservation.getReservationDate(), reservation.getShift())
+                .stream()
+                .anyMatch(r -> r.getReservationStatus() == ReservationStatus.ACCEPTED && !r.equals(reservation));
+    }
+
+    private boolean validateDinners(Reservation reservation) {
+        int dinners = reservation.getDinners();
+        return dinners >= 1 && dinners <= 6;
     }
 
     private void recalculateTotalDinners(LocalDate reservationDate, Shift shift) {
-
         ReservationRecord reservationRecord = reservationRecordRepository
                 .findByReservationDateAndShift(reservationDate, shift)
                 .orElseThrow(() -> new IllegalCalendarException("No reservations found for the specified date and shift"));
-        List<Reservation> reservations = reservationRepository.findAllByReservationDateAndShift(reservationDate, shift);
 
-        int totalDinners = reservations.stream()
+        int totalDinners = reservationRepository.findAllByReservationDateAndShift(reservationDate, shift).stream()
                 .filter(reservation -> reservation.getReservationStatus() == ReservationStatus.ACCEPTED)
                 .mapToInt(Reservation::getDinners)
                 .sum();
 
-        int emptySpaces = reservationRecord.getMAX_CLIENTS() - totalDinners;
-        reservationRecord.setEmptySpaces(emptySpaces);
-
+        reservationRecord.setEmptySpaces(reservationRecord.getMAX_CLIENTS() - totalDinners);
         reservationRecordRepository.save(reservationRecord);
     }
 

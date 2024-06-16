@@ -19,7 +19,6 @@ import java.util.List;
 @DiscriminatorValue("Client")
 public class Client extends User{
 
-    @Positive
     private double rating;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)

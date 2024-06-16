@@ -19,11 +19,9 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @Positive
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Role name must not be null")
     @NotEmpty
     private String name;
 

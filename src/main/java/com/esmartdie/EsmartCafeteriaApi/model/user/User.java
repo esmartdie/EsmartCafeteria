@@ -20,8 +20,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @Positive
     private Long id;
 
     @NotNull

@@ -22,8 +22,6 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @Positive
     private Long id;
 
     @ManyToOne
