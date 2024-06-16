@@ -31,21 +31,20 @@ public class EmployeeDTO {
 
     public EmployeeDTO(){};
 
+    public EmployeeDTO(String name, String lastName, String email, String password, boolean active, Long employee_id) {
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.active = active;
+        this.employee_id = employee_id;
+    }
+
     public EmployeeDTO(String name, String lastName, String email, Boolean active, Long employeeId) {
-        this.name=name;
-        this.lastName=lastName;
-        this.email=email;
-        this.active=active;
-        this.employee_id=employeeId;
+        setName(name);
+        setLastName(lastName);
+        setEmail(email);
+        setActive(active);
+        setEmployee_id(employeeId);
     }
-
-    public EmployeeDTO(Long id, String name, String lastName, String email, Boolean active, Long employeeId) {
-        this.id = id;
-        this.name=name;
-        this.lastName=lastName;
-        this.email=email;
-        this.active=active;
-        this.employee_id=employeeId;
-    }
-
 }

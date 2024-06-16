@@ -56,22 +56,22 @@ class ReservationServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Ensure mocks are initialized
+        MockitoAnnotations.openMocks(this);
 
         Role role = new Role(1L, "ROLE_USER");
 
-        // Initialize client
+
         client = new Client(1L, "John", "Doe", "john.doe@example.com", "password123", true, role);
         client.setRating(5.0);
 
-        // Initialize reservationRecord
+
         reservationRecord = new ReservationRecord();
         reservationRecord.setId(1L);
         reservationRecord.setEmptySpaces(10);
         reservationRecord.setReservationDate(LocalDate.now().plusDays(1));
         reservationRecord.setShift(Shift.DAY1);
 
-        // Initialize reservationDTO
+
         clientDTO = new ClientDTO(1L, "John", "Doe", "john.doe@example.com", true);
         reservationDTO = new NewReservationDTO();
         reservationDTO.setClientDTO(clientDTO);
@@ -79,12 +79,12 @@ class ReservationServiceUnitTest {
         reservationDTO.setReservationDate(LocalDate.now().plusDays(1));
         reservationDTO.setShift(Shift.DAY1);
 
-        // Initialize savedReservation
+
         savedReservation = new Reservation(client, 4, reservationRecord, LocalDate.now().plusDays(1), Shift.DAY1);
         savedReservation.setId(1L);
         savedReservation.setReservationStatus(ReservationStatus.ACCEPTED);
 
-        // Initialize ReservationDTO result
+
         reservationDTOResult = new ReservationDTO();
         reservationDTOResult.setId(1L);
         reservationDTOResult.setDinners(4);

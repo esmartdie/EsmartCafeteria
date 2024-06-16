@@ -18,7 +18,6 @@ public class Employee extends User{
 
     @Positive
     @NotNull
-    @NotEmpty
     private Long employee_id;
 
     public Employee(Long id, String name, String lastName, String email,

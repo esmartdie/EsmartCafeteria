@@ -25,8 +25,8 @@ public class User {
     @NotNull
     @NotEmpty
     private String name;
-    @Column(name="last_name")
 
+    @Column(name="last_name")
     @NotNull
     @NotEmpty
     private String lastName;
@@ -38,8 +38,8 @@ public class User {
     @NotNull
     @NotEmpty
     private String password;
-    @Convert(converter = NumericBooleanConverter.class)
 
+    @Convert(converter = NumericBooleanConverter.class)
     private Boolean active;
 
     @ManyToOne(fetch = FetchType.EAGER)

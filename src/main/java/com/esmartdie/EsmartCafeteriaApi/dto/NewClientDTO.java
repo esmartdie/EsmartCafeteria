@@ -30,9 +30,10 @@ public class NewClientDTO {
     public NewClientDTO() {
     }
 
-    public NewClientDTO(String name, String lastName, String email, Boolean active) {
+    public NewClientDTO(String name, String lastName, String email, String password,  Boolean active) {
         this.name = name;
         this.lastName = lastName;
+        this.password = password;
         this.email = email;
         this.active = active;
     }
