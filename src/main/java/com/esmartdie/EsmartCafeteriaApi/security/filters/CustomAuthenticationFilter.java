@@ -66,10 +66,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         response.setContentType(APPLICATION_JSON_VALUE);
 
-        String email = user.getUsername();
-
-//        UserLogs log= userLogsService.createUserLoginLog(email);
-
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
+        log.error("Authentication failed for user: {}", request.getParameter("email"));
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Authentication failed");
     }
 }

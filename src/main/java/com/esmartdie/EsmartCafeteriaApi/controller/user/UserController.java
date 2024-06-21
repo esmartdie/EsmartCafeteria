@@ -39,7 +39,6 @@ public class UserController implements IUserController{
 
         Client client = userService.getClientById(id);
 
-
         ClientDTO clientDTO = new ClientDTO(
                 client.getName(),
                 client.getLastName(),

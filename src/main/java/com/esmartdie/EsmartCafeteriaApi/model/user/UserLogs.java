@@ -21,8 +21,6 @@ public class UserLogs {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @NotEmpty
     private Long id;
 
     @ManyToOne(fetch = EAGER)

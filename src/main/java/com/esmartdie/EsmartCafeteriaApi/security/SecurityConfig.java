@@ -56,8 +56,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/moderator/**").hasAuthority("ROLE_MODERATOR")
                         .requestMatchers("/api/users/**").hasAuthority("ROLE_USER")
-
-
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .addFilter(customAuthenticationFilter)
