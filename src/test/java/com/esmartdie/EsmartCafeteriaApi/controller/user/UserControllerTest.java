@@ -57,8 +57,6 @@ class UserControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private String clientToken, adminToken, moderatorToken;
 

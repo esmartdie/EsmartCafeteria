@@ -55,7 +55,6 @@ public class ClientController implements IClientController{
         return ResponseEntity.status(HttpStatus.CREATED).body(updateResults);
     }
 
-
     @PatchMapping("/{clientId}/updateRating")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
