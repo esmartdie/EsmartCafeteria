@@ -2,6 +2,8 @@ package com.esmartdie.EsmartCafeteriaApi.model.reservation;
 
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import jakarta.validation.groups.Default;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +23,11 @@ public class Reservation {
     private Long id;
 
     @ManyToOne
+    @NotNull
     private Client client;
 
+    @Positive
+    @NotNull
     private Integer dinners;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -30,9 +35,11 @@ public class Reservation {
     private ReservationRecord record;
 
     @Column(name="reservation_date")
+    @FutureOrPresent
     private LocalDate reservationDate;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Shift shift;
 
     @Enumerated(EnumType.STRING)

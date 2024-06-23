@@ -30,14 +30,12 @@ class IEmployeeRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role role = new Role();
-        role.setId(1L);
-        role.setName("ROLE_USER");
+        Role role = new Role(null, "ROLE_ADMIN");
         roleRepository.save(role);
         user = new User(1L, "Eren", "Jaeger", "erenJ@titantesting.com", "password", true, role);
         userRepository.save(user);
 
-        employee = new Employee(2L, "Armin", "Arlert", "ArminA@titantesting.com", "password", true, role, 1L);
+        employee = new Employee(null, "Armin", "Arlert", "ArminA@titantesting.com", "password", true, role, 1L);
         employeeRepository.save(employee);
     }
 

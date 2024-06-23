@@ -1,6 +1,11 @@
 package com.esmartdie.EsmartCafeteriaApi.model.reservation;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.groups.Default;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -22,15 +27,19 @@ public class ReservationRecord {
     private final Integer MAX_CLIENTS=40;
 
     @Column(name="empty_spaces")
+    @Positive
     private Integer emptySpaces;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "record")
     List<Reservation> reservationList = new ArrayList<>();
 
     @Column(name="reservation_date")
+    @FutureOrPresent(message = "Reservation date must be in the present or future")
+    @NotNull(message = "Reservation date must not be null")
     private LocalDate reservationDate;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Shift must not be null")
     private Shift shift;
 
 

@@ -21,7 +21,7 @@ class IUserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user = new User(1L, "John", "Wick", "john@theboogieman.com", "password", true, null);
+        user = new User(null, "John", "Wick", "john@theboogieman.com", "password", true, null);
         userRepository.save(user);
     }
 

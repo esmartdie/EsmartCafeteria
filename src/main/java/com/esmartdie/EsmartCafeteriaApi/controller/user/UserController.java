@@ -28,7 +28,7 @@ public class UserController implements IUserController{
     @Override
     @PostMapping("/admin/employee/create")
     public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        EmployeeDTO employee = userService.createEmployeeFromDTO(employeeDTO);
+        EmployeeResponseDTO employee = userService.createEmployeeFromDTO(employeeDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(new GenericApiResponseDTO(true, "Employee created successfully", employee));
     }
 
@@ -38,7 +38,6 @@ public class UserController implements IUserController{
     public ResponseEntity<ClientDTO> getClientInfo(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long id) {
 
         Client client = userService.getClientById(id);
-
 
         ClientDTO clientDTO = new ClientDTO(
                 client.getName(),

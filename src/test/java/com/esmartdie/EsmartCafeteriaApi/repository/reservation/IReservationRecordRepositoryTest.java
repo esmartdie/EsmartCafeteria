@@ -30,6 +30,10 @@ class IReservationRecordRepositoryTest {
     @Autowired
     private IUserRepository userRepository;
 
+    private int year = LocalDate.now().getYear();
+    private int month = LocalDate.now().getMonth().plus(1).getValue();
+
+
 
     @AfterEach
     public void tearDown(){
@@ -41,25 +45,25 @@ class IReservationRecordRepositoryTest {
     public void testFindByReservationDateBetween() {
 
         ReservationRecord reservationRecord1 = new ReservationRecord();
-        reservationRecord1.setReservationDate(LocalDate.of(2024, 5, 1));
+        reservationRecord1.setReservationDate(LocalDate.of(year, month, 1));
         reservationRecord1.setShift(Shift.DAY1);
         reservationRecordRepository.save(reservationRecord1);
 
         ReservationRecord reservationRecord2 = new ReservationRecord();
-        reservationRecord2.setReservationDate(LocalDate.of(2024, 5, 3));
+        reservationRecord2.setReservationDate(LocalDate.of(year, month, 3));
         reservationRecord2.setShift(Shift.NIGHT2);
         reservationRecordRepository.save(reservationRecord2);
 
         ReservationRecord reservationRecord3 = new ReservationRecord();
-        reservationRecord3.setReservationDate(LocalDate.of(2024, 5, 5));
+        reservationRecord3.setReservationDate(LocalDate.of(year, month, 5));
         reservationRecord3.setShift(Shift.DAY3);
         reservationRecordRepository.save(reservationRecord3);
 
         reservationRecord2.setReservationList(new ArrayList<>());
 
 
-        LocalDate startDate = LocalDate.of(2024, 5, 2);
-        LocalDate endDate = LocalDate.of(2024, 5, 4);
+        LocalDate startDate = LocalDate.of(year, month, 2);
+        LocalDate endDate = LocalDate.of(year, month, 4);
         List<ReservationRecord> result = reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
 
@@ -69,7 +73,7 @@ class IReservationRecordRepositoryTest {
 
     @Test
     public void testFindByReservationDateAndShift() {
-        LocalDate date = LocalDate.of(2024, 5, 10);
+        LocalDate date = LocalDate.of(year, month, 10);
         Shift shift = Shift.DAY2;
 
         ReservationRecord reservationRecord = new ReservationRecord();

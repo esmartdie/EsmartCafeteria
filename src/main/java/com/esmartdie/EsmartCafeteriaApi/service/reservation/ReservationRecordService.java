@@ -5,6 +5,7 @@ import com.esmartdie.EsmartCafeteriaApi.exception.IllegalCalendarException;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationRecord;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.repository.reservation.IReservationRecordRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class ReservationRecordService implements IReservationRecordService{
     @Autowired
     private IReservationRecordRepository reservationRecordRepository;
 
+    @Autowired
+    private DTOConverter converter;
+
     @Override
     public List<ReservationRecordDTO> getReservationRecordsForMonth(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
@@ -35,17 +39,8 @@ public class ReservationRecordService implements IReservationRecordService{
                 reservationRecordRepository.findAllByReservationDateBetween(startDate, endDate);
 
         return reservationRecords.stream()
-                .map(this::mapToDTO)
+                .map(reservationRecord -> converter.createReservationRecordDTOFromReservationRecord(reservationRecord))
                 .collect(Collectors.toList());
-    }
-
-    private ReservationRecordDTO mapToDTO(ReservationRecord reservationRecord) {
-        ReservationRecordDTO dto = new ReservationRecordDTO();
-        dto.setId(reservationRecord.getId());
-        dto.setReservationDate(reservationRecord.getReservationDate());
-        dto.setShift(reservationRecord.getShift());
-        dto.setAvailableReservations(reservationRecord.getEmptySpaces());
-        return dto;
     }
 
     @Override

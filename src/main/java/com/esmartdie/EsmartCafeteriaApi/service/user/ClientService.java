@@ -6,6 +6,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IClientRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,37 +25,22 @@ public class ClientService implements IClientService{
     @Autowired
     private IUserRepository userRepository;
 
+    private final DTOConverter converter;
+
 
     @Override
     public List<ClientDTO> getActiveClients() {
 
         log.info("Fetching all active clients");
         List<Client> clients = clientRepository.findAllActive();
-        return createClientDTOList(clients);
-    }
-
-    private List<ClientDTO>  createClientDTOList(List<Client> clients){
-        List<ClientDTO> clientDTOList = new ArrayList<>();
-
-        for(Client client : clients){
-            ClientDTO clientDTO;
-            clientDTO = new ClientDTO();
-            clientDTO.setName(client.getName());
-            clientDTO.setLastName(client.getLastName());
-            clientDTO.setEmail(client.getEmail());
-            clientDTO.setActive(client.getActive());
-            clientDTO.setRating(client.getRating());
-            clientDTOList.add(clientDTO);
-        }
-
-        return clientDTOList;
+        return converter.createClientDTOList(clients);
     }
 
     @Override
     public List<ClientDTO>getInactiveClients() {
         log.info("Fetching all inactive clients");
         List<Client> clients = clientRepository.findAllInactive();
-        return createClientDTOList(clients);
+        return  converter.createClientDTOList(clients);
     }
 
     @Override

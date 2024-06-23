@@ -2,6 +2,7 @@ package com.esmartdie.EsmartCafeteriaApi.controller.user;
 
 import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
 import com.esmartdie.EsmartCafeteriaApi.service.user.IClientService;
+import com.esmartdie.EsmartCafeteriaApi.utils.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,13 +55,12 @@ public class ClientController implements IClientController{
         return ResponseEntity.status(HttpStatus.CREATED).body(updateResults);
     }
 
-
     @PatchMapping("/{clientId}/updateRating")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
     @Validated
     public void updateClientRating(@PathVariable @Min(value = 1, message = "ID must be greater than 0") Long clientId,
-                                   @Valid @RequestBody ClientDTO clientDTO) {
+                                   @Validated (ValidationGroups.RatingInfo.class)@RequestBody ClientDTO clientDTO) {
 
         clientService.updateClientRating(clientId, clientDTO);
     }

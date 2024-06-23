@@ -1,10 +1,7 @@
 package com.esmartdie.EsmartCafeteriaApi.service.user;
 
 
-import com.esmartdie.EsmartCafeteriaApi.dto.ClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.EmployeeDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.NewClientDTO;
-import com.esmartdie.EsmartCafeteriaApi.dto.UpdateClientDTO;
+import com.esmartdie.EsmartCafeteriaApi.dto.*;
 import com.esmartdie.EsmartCafeteriaApi.exception.EmailAlreadyExistsException;
 import com.esmartdie.EsmartCafeteriaApi.exception.ResourceNotFoundException;
 import com.esmartdie.EsmartCafeteriaApi.exception.UserTypeMismatchException;
@@ -14,6 +11,7 @@ import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
 import com.esmartdie.EsmartCafeteriaApi.model.user.User;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
+import com.esmartdie.EsmartCafeteriaApi.utils.DTOConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +32,8 @@ public class UserService implements IUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private final DTOConverter converter;
+
     @Override
     public <T extends User> T saveUser(T user) {
         log.info("Saving new user {} to the database", user.getName());
@@ -49,54 +49,28 @@ public class UserService implements IUserService {
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
 
-        Client client = new Client(
-               null,
-               clientDTO.getName(),
-               clientDTO.getLastName(),
-               clientDTO.getEmail(),
-               clientDTO.getPassword(),
-               clientDTO.isActive(),
-               userRole
-        );
+        Client client = saveUser(converter.createClientFromNewClientDTO(clientDTO, userRole));
 
-        client = saveUser(client);
-
-        return new ClientDTO(
-                client.getId(),
-                client.getName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getActive()
-        );
+        return converter.createClientDTOFromClient(client);
     }
 
     @Override
-    public EmployeeDTO createEmployeeFromDTO(EmployeeDTO employeeDTO) {
+    public EmployeeResponseDTO createEmployeeFromDTO(EmployeeDTO employeeDTO) {
 
         checkEmailAvailability(employeeDTO.getEmail());
 
         Role userRole = roleRepository.findByName("ROLE_MODERATOR")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-        Employee employee =  new Employee(
-                null,
-                employeeDTO.getName(),
-                employeeDTO.getLastName(),
-                employeeDTO.getEmail(),
-                employeeDTO.getPassword(),
-                employeeDTO.isActive(),
-                userRole,
-                employeeDTO.getEmployee_id()
-        );
 
-        employee = saveUser(employee);
-        employeeDTO.setId(employee.getId());
 
-        return employeeDTO;
+        Employee employee = saveUser(converter.createEmployeeFromEmployeeDTO(employeeDTO, userRole));
+
+        return converter.createEmployeeResponseDTOFromEmployee(employee);
 
     }
 
-    public void checkEmailAvailability(String email) {
+    private void checkEmailAvailability(String email) {
         if (userRepository.existsByEmail(email)) {
             log.error("The email \" + email + \" is already registered");
             throw new EmailAlreadyExistsException("The email " + email + " is already registered");
@@ -141,11 +115,7 @@ public class UserService implements IUserService {
 
         client=userRepository.save(client);
 
-        return new ClientDTO(client.getId(),
-                client.getName(),
-                client.getLastName(),
-                client.getEmail(),
-                client.getActive());
+        return converter.createClientDTOFromClient(client);
     }
 
     private void checkEmailAvailabilityFilterIdResult(String email, Long id) {
