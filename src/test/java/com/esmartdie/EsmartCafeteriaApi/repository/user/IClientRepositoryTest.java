@@ -30,14 +30,12 @@ class IClientRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role role = new Role();
-        role.setId(1L);
-        role.setName("ROLE_USER");
+        Role role = new Role(null, "ROLE_USER");
         roleRepository.save(role);
         user = new User(1L, "Eren", "Jaeger", "erenJ@titantesting.com", "password", true, role);
         userRepository.save(user);
 
-        client = new Client(2L, "Mikasa", "Ackerman", "mikasaA@titantesting.com", "password", true, role);
+        client = new Client(null, "Mikasa", "Ackerman", "mikasaA@titantesting.com", "password", true, role);
         clientRepository.save(client);
     }
 

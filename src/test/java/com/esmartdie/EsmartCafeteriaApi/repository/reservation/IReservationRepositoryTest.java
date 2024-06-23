@@ -4,6 +4,8 @@ import com.esmartdie.EsmartCafeteriaApi.model.reservation.Reservation;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.ReservationStatus;
 import com.esmartdie.EsmartCafeteriaApi.model.reservation.Shift;
 import com.esmartdie.EsmartCafeteriaApi.model.user.Client;
+import com.esmartdie.EsmartCafeteriaApi.model.user.Role;
+import com.esmartdie.EsmartCafeteriaApi.repository.user.IRoleRepository;
 import com.esmartdie.EsmartCafeteriaApi.repository.user.IUserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,11 +30,19 @@ class IReservationRepositoryTest {
     @Autowired
     private IUserRepository userRepository;
 
+    @Autowired
+    private IRoleRepository roleRepository;
+
     private Client client;
+
+    private int year = LocalDate.now().getYear();
+    private int month = LocalDate.now().getMonth().plus(1).getValue();
 
     @BeforeEach
     public void setUp() {
-        client = new Client();
+        Role role = new Role(null, "ROLE_USER");
+        roleRepository.save(role);
+        client = new Client(null, "Mikasa", "Ackerman", "mikasaA@titantesting.com", "password", true, role);
         userRepository.save(client);
     }
 
@@ -84,7 +94,7 @@ class IReservationRepositoryTest {
         Reservation reservation2 = createReservation(client, Shift.DAY2);
         reservationRepository.saveAll(List.of(reservation1, reservation2));
 
-        List<Reservation> retrievedReservations = reservationRepository.findAllByReservationDate(LocalDate.of(2024, 5, 11));
+        List<Reservation> retrievedReservations = reservationRepository.findAllByReservationDate(LocalDate.of(year, month, 11));
 
         assertEquals(2, retrievedReservations.size());
         assertTrue(retrievedReservations.containsAll(List.of(reservation1, reservation2)));
@@ -97,7 +107,7 @@ class IReservationRepositoryTest {
         reservationRepository.saveAll(List.of(reservation1, reservation2));
 
         List<Reservation> retrievedReservations =
-                reservationRepository.findAllByReservationDateAndShift(LocalDate.of(2024, 5, 11), Shift.DAY1);
+                reservationRepository.findAllByReservationDateAndShift(LocalDate.of(year, month, 11), Shift.DAY1);
 
         assertEquals(1, retrievedReservations.size());
         assertTrue(retrievedReservations.contains(reservation1));
@@ -125,7 +135,7 @@ class IReservationRepositoryTest {
         Reservation reservation = new Reservation();
         reservation.setClient(client);
         reservation.setDinners(2);
-        reservation.setReservationDate(LocalDate.of(2024, 5, 11));
+        reservation.setReservationDate(LocalDate.of(year, month, 11));
         reservation.setShift(shift);
         reservation.setReservationStatus(ReservationStatus.PENDING);
         return reservation;

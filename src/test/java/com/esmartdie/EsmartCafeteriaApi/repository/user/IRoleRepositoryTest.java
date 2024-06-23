@@ -19,14 +19,10 @@ class IRoleRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role role1 = new Role();
-        role1.setId(1L);
-        role1.setName("ROLE_ADMIN");
+        Role role1 = new Role(null, "ROLE_ADMIN");
         roleRepository.save(role1);
 
-        Role role2 = new Role();
-        role2.setId(2L);
-        role2.setName("ROLE_USER");
+        Role role2 = new Role(null, "ROLE_USER");
         roleRepository.save(role2);
     }
 
