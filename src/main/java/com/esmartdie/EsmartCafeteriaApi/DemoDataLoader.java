@@ -56,7 +56,7 @@ public class DemoDataLoader {
         calculateEmptySpaces();
     }
 
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now().plusMonths(1);
     LocalDate yesterday = today.minusDays(1);
     LocalDate tomorrow = today.plusDays(1);
 
@@ -85,7 +85,7 @@ public class DemoDataLoader {
     }
 
     private void openCalendar(){
-        reservationRecordService.createMonthCalendar(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        reservationRecordService.createMonthCalendar(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().plusMonths(1).getMonth()));
     }
 
     private void createReservations(){
